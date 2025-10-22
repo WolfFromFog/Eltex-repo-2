@@ -1,0 +1,112 @@
+ot@eltex-practice2-pg2-v7:~# journalctl -b --since="$(journalctl -b -n+1 --output=short-iso | awk '{print $1}' | head -1)" --until="$(date -d "$(journalctl -b -n+1 --output=short-iso | awk '{print $1}' | head -1) +20 seconds" +"%Y-%m-%d %H:%M:%S")"
+t 15 07:53:14 localhost kernel: Command line: BOOT_IMAGE=/vmlinuz-6.8.0-55-generic root=/dev/mapper/ubuntu--vg-ubuntu--lv ro
+Oct 15 07:53:14 localhost kernel: KERNEL supported cpus:
+Oct 15 07:53:14 localhost kernel:   Intel GenuineIntel
+Oct 15 07:53:14 localhost kernel:   AMD AuthenticAMD
+Oct 15 07:53:14 localhost kernel:   Hygon HygonGenuine
+Oct 15 07:53:14 localhost kernel:   Centaur CentaurHauls
+Oct 15 07:53:14 localhost kernel:   zhaoxin   Shanghai
+Oct 15 07:53:14 localhost kernel: BIOS-provided physical RAM map:
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x00000000000f0000-0x00000000000fffff] reserved
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x0000000000100000-0x00000000bffd9fff] usable
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x00000000bffda000-0x00000000bfffffff] reserved
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x00000000feffc000-0x00000000feffffff] reserved
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x00000000fffc0000-0x00000000ffffffff] reserved
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x0000000100000000-0x000000013fffffff] usable
+Oct 15 07:53:14 localhost kernel: BIOS-e820: [mem 0x000000fd00000000-0x000000ffffffffff] reserved
+Oct 15 07:53:14 localhost kernel: NX (Execute Disable) protection: active
+
+root@eltex-practice2-pg2-v7:~# find / -name "auth.log" 2>/dev/null
+/var/log/auth.log
+
+root@eltex-practice2-pg2-v7:~# head /var/log/auth.log
+2025-10-19T00:05:01.925675+00:00 eltex-practice2-pg2-v7 CRON[44320]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-19T00:05:01.933080+00:00 eltex-practice2-pg2-v7 CRON[44320]: pam_unix(cron:session): session closed for user root
+2025-10-19T00:15:01.930821+00:00 eltex-practice2-pg2-v7 CRON[44348]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-19T00:15:01.932696+00:00 eltex-practice2-pg2-v7 CRON[44348]: pam_unix(cron:session): session closed for user root
+2025-10-19T00:17:01.935213+00:00 eltex-practice2-pg2-v7 CRON[44352]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-19T00:17:02.352728+00:00 eltex-practice2-pg2-v7 CRON[44352]: pam_unix(cron:session): session closed for user root
+2025-10-19T00:25:01.940332+00:00 eltex-practice2-pg2-v7 CRON[44362]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-19T00:25:02.121107+00:00 eltex-practice2-pg2-v7 CRON[44362]: pam_unix(cron:session): session closed for user root
+2025-10-19T00:35:01.945386+00:00 eltex-practice2-pg2-v7 CRON[44372]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-19T00:35:01.946723+00:00 eltex-practice2-pg2-v7 CRON[44372]: pam_unix(cron:session): session closed for user root
+
+root@eltex-practice2-pg2-v7:~# awk '{print $0}' /var/log/auth.log | sed 's/\[[0-9]*\]//g' | sort | tail
+2025-10-21T14:15:01.136279+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-21T14:15:01.143545+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session closed for user root
+2025-10-21T14:17:01.139572+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-21T14:17:01.140523+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session closed for user root
+2025-10-21T14:25:01.143887+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-21T14:25:01.145348+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session closed for user root
+2025-10-21T14:35:01.148758+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-21T14:35:01.149870+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session closed for user root
+2025-10-21T14:45:01.153824+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2025-10-21T14:45:01.155305+00:00 eltex-practice2-pg2-v7 CRON: pam_unix(cron:session): session closed for user root
+
+root@eltex-practice2-pg2-v7:~#  awk '{print $0}' /var/log/auth.log | sed 's/\[[0-9]*\]//g' | sort | awk '{print $3}' | uniq -c | sort -nr
+    902 CRON:
+
+vi user_search
+
+#!/bin/bash
+awk -F: '$7 == "/usr/sbin/nologin" {print $3 " " $1}' /etc/passwd | sort -nr | while read uid username; do
+    groups=$(awk -F: -v user="$username" '$4 ~ user {print $1} END {for(i=1;i<=NF;i++) if($i ~ user) print $1}' /etc/group | tr '\n' ',' | sed 's/,$//')
+    echo "$uid, $username, $groups"
+done
+
+root@eltex-practice2-pg2-v7:~# bash user_search
+65534, nobody,
+1004, user3, user_group,user_group
+998, systemd-network,
+997, systemd-timesync,
+992, systemd-resolve,
+991, polkitd,
+989, fwupd-refresh,
+109, sshd,
+108, usbmux,
+107, landscape,
+105, tcpdump,
+104, uuidd,
+103, syslog, adm
+101, messagebus,
+42, _apt,
+39, irc,
+38, list,
+34, backup,
+33, www-data,
+13, proxy,
+10, uucp,
+9, news,
+8, mail,
+7, lp,
+6, man,
+5, games,
+3, sys, adm
+2, bin,
+1, daemon,
+
+root@eltex-practice2-pg2-v7:~# dmesg | grep kernel
+[    0.044232] Booting paravirtualized kernel on KVM
+[    0.045242] Unknown kernel command line parameters "BOOT_IMAGE=/vmlinuz-6.8.0-55-generic", will be passed to user space.
+[    0.102562] Memory: 3933488K/4193760K available (22528K kernel code, 4443K rwdata, 14344K rodata, 4988K init, 4716K bss, 260012K reserved, 0K cma-reserved)
+[    0.512419] Loaded X.509 cert 'Build time autogenerated kernel key: e0bedf6fa049a1e09bd65ebab3904f14cdd5bc68'
+[    0.648881] Loaded X.509 cert 'Build time autogenerated kernel key: e0bedf6fa049a1e09bd65ebab3904f14cdd5bc68'
+[    0.671159] Freeing unused kernel image (initmem) memory: 4988K
+[    0.671908] Write protecting the kernel read-only data: 38912k
+[    0.673039] Freeing unused kernel image (rodata/data gap) memory: 2040K
+[    6.393337] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+[    6.405835] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[    6.417762] systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+
+root@eltex-practice2-pg2-v7:~# wc -l /var/log/kern.log
+34 /var/log/kern.log
+
+ot@eltex-practice2-pg2-v7:~# awk ' /^Commandline:/ {cmd=$0} /^Start-Date:/ {start=$0} /^End-Date:/ {end=$0; print cmd " ; " start " ; " end; cmd=start=end=""}' /var/log/apt/history.log | head -5
+Commandline: apt-get install --reinstall apt ; Start-Date: 2025-02-16  20:51:22 ; End-Date: 2025-02-16  20:51:24
+Commandline: apt-get install --reinstall base-files ; Start-Date: 2025-02-16  20:51:26 ; End-Date: 2025-02-16  20:51:28
+Commandline: apt-get install --reinstall base-passwd ; Start-Date: 2025-02-16  20:51:31 ; End-Date: 2025-02-16  20:51:32
+Commandline: apt-get install --reinstall bash ; Start-Date: 2025-02-16  20:51:35 ; End-Date: 2025-02-16  20:51:37
+Commandline: apt-get install --reinstall bsdutils ; Start-Date: 2025-02-16  20:51:39 ; End-Date: 2025-02-16  20:51:41
+

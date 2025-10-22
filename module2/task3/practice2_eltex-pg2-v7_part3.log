@@ -1,0 +1,150 @@
+root@eltex-practice2-pg2-v7:~# git config --global user.name WolfFromFog
+root@eltex-practice2-pg2-v7:~# git config  --global user.email stas.povelitsin@yandex.ru
+root@eltex-practice2-pg2-v7:~# git config  --global init.defaultBranch main
+
+
+root@eltex-practice2-pg2-v7:~# apt update
+root@eltex-practice2-pg2-v7:~# apt install git gh
+
+root@eltex-practice2-pg2-v7:~# ssh-keygen -t ed25519 -f ~/.ssh/WolfFromFog
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /root/.ssh/WolfFromFog
+Your public key has been saved in /root/.ssh/WolfFromFog.pub
+The key fingerprint is:
+SHA256:VYD1n9YAZlo7J5JFHy6jO2oAGorssugLLZWMQviBAeo root@eltex-practice2-pg2-v7
+The key's randomart image is:
++--[ED25519 256]--+
+|+        oooO .  |
+|oo      .  X = . |
+|+..       = B =  |
+|o+.o.    . o B + |
+|=E=o .  S .   + .|
+|++.   .    . .   |
+|+ .    .  o      |
+|+o      .. .     |
+|=+.    ..        |
++----[SHA256]-----+
+
+
+root@eltex-practice2-pg2-v7:~# gh auth login -h github.com --web
+root@eltex-practice2-pg2-v7:~# gh auth status
+github.com
+  ✓ Logged in to github.com account WolfFromFog (/root/.config/gh/hosts.yml)
+  - Active account: true
+  - Git operations protocol: ssh
+  - Token: gho_************************************
+  - Token scopes: 'admin:public_key', 'gist', 'read:org', 'repo'
+root@eltex-practice2-pg2-v7:~# gh auth setup-git --hostname github.com
+
+root@eltex-practice2-pg2-v7:~# gh repo create --public Eltex-repo-2
+✓ Created repository WolfFromFog/Eltex-repo-2 on GitHub
+  https://github.com/WolfFromFog/Eltex-repo-2
+
+root@eltex-practice2-pg2-v7:~# mkdir ~/Eltex-repo-2 && cd ~/Eltex-repo-2
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# echo "Это второй репозиторий для школы Eltex, но сделанный командами git" >> README.md
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git init
+Initialized empty Git repository in /root/Eltex-repo-2/.git/
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git add README.md
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git commit -m "first commit"
+[main (root-commit) a7e38bd] first commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git branch -M main
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git remote add origin https://github.com/WolfFromFog/Eltex-repo-2
+root 
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git status
+On branch main
+nothing to commit, working tree clean
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git push -u origin main
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 317 bytes | 317.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+To https://github.com/WolfFromFog/Eltex-repo-2
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+
+eltex-pg2-v7@eltex-2025-autumn-19:09>scp report_part1.txt root@172.16.9.207:/root/Eltex-repo-2/module1/task1
+
+eltex-pg2-v7@eltex-2025-autumn-19:11>scp eltex-pg2-v7_part.log  root@172.16.9.207:/root/Eltex-repo-2/module1/task2
+eltex-pg2-v7_part.log                                       100%   12KB 957.8KB/s   00:00
+eltex-pg2-v7@eltex-2025-autumn-19:12>scp eltex-pg2-v7_part3.log   root@172.16.9.207:/root/Eltex-repo-2/module1/task3
+eltex-pg2-v7_part3.log                                      100% 1209   105.3KB/s   00:00
+eltex-pg2-v7@eltex-2025-autumn-19:13>scp eltex-pg2-v7_part3_gt50M.log   root@172.16.9.207:/root/Eltex-repo-2/module1/task3
+eltex-pg2-v7_part3_gt50M.log    
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git add .
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   module1/task1/report_part1.txt
+        new file:   module1/task2/eltex-pg2-v7_part.log
+        new file:   module1/task3/eltex-pg2-v7_part3.log
+        new file:   module1/task3/eltex-pg2-v7_part3_gt50M.log
+
+[main ce7b677] Добавлены отчёты из первого задания.
+ 4 files changed, 75 insertions(+)
+ create mode 100644 module1/task1/report_part1.txt
+ create mode 100644 module1/task2/eltex-pg2-v7_part.log
+ create mode 100644 module1/task3/eltex-pg2-v7_part3.log
+ create mode 100644 module1/task3/eltex-pg2-v7_part3_gt50M.log
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# git push
+Enumerating objects: 11, done.
+Counting objects: 100% (11/11), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (8/8), done.
+Writing objects: 100% (10/10), 4.12 KiB | 4.12 MiB/s, done.
+Total 10 (delta 0), reused 0 (delta 0), pack-reused 0
+To https://github.com/WolfFromFog/Eltex-repo-2
+   a7e38bd..ce7b677  main -> main
+
+root@eltex-practice2-pg2-v7:~# mkdir ~/Eltex-repo-2_clone && cd ~/Eltex-repo-2_clone
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2_clone# git clone https://github.com/WolfFromFog/Eltex-repo-2 .
+Cloning into '.'...
+remote: Enumerating objects: 13, done.
+remote: Counting objects: 100% (13/13), done.
+remote: Compressing objects: 100% (10/10), done.
+remote: Total 13 (delta 0), reused 13 (delta 0), pack-reused 0 (from 0)
+Receiving objects: 100% (13/13), 4.40 KiB | 4.40 MiB/s, done.
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2_clone# ls
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2_clone# git fetch
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2_clone# git log origin/main
+commit ce7b67797a23716f0ba826227cb571feccda5bc9 (HEAD -> main, origin/main, origin/HEAD)
+Author: WolfFromFog <stas.povelitsin@yandex.ru>
+Date:   Wed Oct 22 12:16:40 2025 +0000
+
+    Добавлены отчёты из первого задания.
+
+commit a7e38bd2decab5a09743a8f9eb089c7486af82c7
+Author: WolfFromFog <stas.povelitsin@yandex.ru>
+Date:   Wed Oct 22 11:46:04 2025 +0000
+
+    first commit
+
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2_clone# git diff main origin/main
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2_clone# git merge
+Already up to date.
+
+root@eltex-practice2-pg2-v7:~# cd Eltex-repo-2
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# ls
+module1  README.md
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# mkdir -p module2/task1
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# mkdir module2/task2
+root@eltex-practice2-pg2-v7:~/Eltex-repo-2# mkdir module2/task3
+ 
