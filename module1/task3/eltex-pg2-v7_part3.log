@@ -1,0 +1,24 @@
+mkdir -p D1/D2/D3
+touch D1/D2/file.txt
+ln ../file.txt hardlink.txt
+ln -s ../file.txt softlink.txt
+ls D1/D2/D3 hardlink.txt softlink.txt
+ls -ali D1/D2/D3 total 12 788852 drwxr-xr-x 2 eltex-pg2-v7 eltex-pg2-v7 4096 Oct 13 20:51 . 788851 drwxr-xr-x 3 eltex-pg2-v7 eltex-pg2-v7 4096 Oct 13 20:42 .. 788836 -rw-r--r-- 2 eltex-pg2-v7 eltex-pg2-v7 54 Oct 13 20:42 hardlink.txt 788853 lrwxrwxrwx 1 eltex-pg2-v7 eltex-pg2-v7 11 Oct 13 20:51 softlink.txt -> ../file.txt
+mv file.txt ..
+cd
+cd D1/D2/D3
+ls
+hardlink.txt softlink2.txt softlink.txt
+ls -ali total 12 788852 drwxr-xr-x 2 eltex-pg2-v7 eltex-pg2-v7 4096 Oct 13 21:18 . 788851 drwxr-xr-x 3 eltex-pg2-v7 eltex-pg2-v7 4096 Oct 13 21:11 .. 788836 -rw-r--r-- 2 eltex-pg2-v7 eltex-pg2-v7 54 Oct 13 20:42 hardlink.txt 788854 lrwxrwxrwx 1 eltex-pg2-v7 eltex-pg2-v7 8 Oct 13 21:07 softlink2.txt -> file.txt 788853 lrwxrwxrwx 1 eltex-pg2-v7 eltex-pg2-v7 11 Oct 13 20:51 softlink.txt -> ../file.txt
+cat hardlink.txt text sample sample text oma uma popopopouuuuuuuuuuuuu
+cat softlink.txt
+cd D1
+pwd
+ls
+rn -r D2
+ls
+find / -type f -size +20M -exec du -h {} + 2>/dev/null >> "$USER_part3_gt50M.log" 
+find . -type f -mtime -1
+which find
+file /usr/bin/find
+file /boot/initrd.img*
