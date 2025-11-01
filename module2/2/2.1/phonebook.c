@@ -267,6 +267,9 @@ int editPerson_ui()
                 printf("\nEnter new phone: ");
                 scanf("%12s", new_phone);
                 break;
+            default:
+                printf("\nWrong Fromat\n");
+                return -5;
             }
         }
     }
