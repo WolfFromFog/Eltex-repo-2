@@ -10,41 +10,72 @@ int main()
 {
 
     int choice;
+    int result = 0;
     
     printf("\n=== PHONE BOOK ===\n");
     
     do {
         printf("\n--- MAIN MENU ---\n");
-        //printf("1. Show all contacts\n");
-        printf("1. Add contact\n");
-        printf("2. Edit contact\n");
-        printf("3. Delete contact\n");
+        printf("1. Show all contacts\n");
+        printf("2. Add contact\n");
+        printf("3. Edit contact\n");
+        printf("4. Delete contact\n");
         printf("0. Exit\n");
         printf("Choose action: ");
+
 
         scanf("%d", &choice);
 
         switch(choice) {
             case 1:
-                printf("Adding contact...\n");
-                createPerson_ui(positionCounter);
+                printf("\nShowing contacts...\n");
+                showAllPersons_ui();
                 break;
             case 2:
-                printf("Editing contact...\n");
-                editPerson_ui(positionCounter);
+                printf("\nAdding contact...\n");
+                result = createPerson_ui();
                 break;
             case 3:
-                printf("Deleting contact...\n");
-                deletePerson_ui(positionCounter);
+                printf("\nEditing contact...\n");
+                result = editPerson_ui();
+                break;
+            case 4:
+                printf("\nDeleting contact...\n");
+                result = deletePerson_ui();
                 break;
             case 0:
-                printf("Exiting programm...\n");
+                printf("\nExiting programm...\n");
                 break;
             default:
-                printf("Wrong choise! Try again.\n");
+                printf("\nWrong choise! Try again.\n");
         }
-
+       /* switch (result)
+        {
+        case -1:
+            printf("\nError: Phonebook is full\n");
+            break;
+        case -2:
+            printf("\nError: All fields are required!\n");
+            break;
+        case -3:
+            printf("\nError: Wrong ID\n");
+            break;
+        case -4:
+            printf("\nWarning: Phonebook is empty\n");
+            break;
+        default:
+            
+            break;
+        }*/
     } while (choice != 0);
+
+
+    for (int i = 0; i < MAX_CONTACTS; i++) {
+        free(persons[i].name);
+        free(persons[i].surname);
+        free(persons[i].patronym);
+    }
+
     system("pause");
     return 0;
 }

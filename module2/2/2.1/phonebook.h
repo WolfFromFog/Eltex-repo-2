@@ -5,33 +5,39 @@
 
 #define MAX_CONTACTS 100
 #define JOB_LEN 50
-#define PHONE_LEN 12
+#define PHONE_LEN 13
+#define FORMAT_LEN 11
+#define NAME_LEN 50
 
 typedef struct {
 
-    int perID;
+   // int perID;
     char* name;
     char* surname;
     char* patronym;
 
-    char  phone[PHONE_LEN];
+    char phone[PHONE_LEN];
     char job[JOB_LEN];
 
 } Person;
 
+extern int currentPosition;
+extern Person persons[];
 
+char* copyString(const char* source);
 
 //Логика
 
-void createPerson(Person persons[], int currentPosition, char p_name[], char p_surname[], char p_patronym[]);
-void deletePerson(int personID);
-void editPerson(int personID, char format[], ...);
+int createPerson(char p_name[], char p_surname[], char p_patronym[]);
+int deletePerson(int personID);
+int editPerson(int personID, char format [], ...);
 
 
 //Интерфейс
 
-int createPerson_ui(int currentPosition);
-int deletePerson_ui(int currentPosition);
-int editPerson_ui(int currentPosition);
+int createPerson_ui();
+int deletePerson_ui();
+int editPerson_ui();
+void showAllPersons_ui();
 
 #endif
