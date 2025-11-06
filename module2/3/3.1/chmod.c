@@ -164,22 +164,21 @@ void print_file_permissions(const char* filename)
     printf("Bit: %s%s%s\n", owner_bits, group_bits, other_bits);
     printf("==================================\n\n");
 }
-void modify_mode()
+char* modify_mode_temp(const char* rule_set)
 {
-  
+    char fromat[9];
+    printf("Введите правила в формате XYZ, где X - кому, Y - условие, Z - правила\n");
+    printf("X = ugoa\n Y = +-= \n Z = rwx\n");
+    scanf("%8s",&fromat);
+    return NULL;
 }
-void ask_for_change()
+char* modify_mode_file(const char* filename)
 {
-  char choice = '0';
-  printf("Хотите изменить правила? (Y/n): ");
-  while(choice != 'Y' || choice != 'y' || choice != 'N' || choice !='n')
-  {
-     scanf("%c",choice);
-     if(choice != 'Y' || choice != 'y' || choice != 'N' || choice !='n')
-     printf("Выберите Y/n:");
-  }
- 
-  
+    char fromat[9];
+    printf("Введите правила в формате XYZ, где X - кому, Y - условие, Z - правила\n");
+    printf("X = ugoa\n Y = +-= \n Z = rwx\n");
+    scanf("%8s",&fromat);
+    return NULL;
 }
 
 

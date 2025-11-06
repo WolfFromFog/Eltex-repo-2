@@ -7,6 +7,7 @@
 int main(int argc, char* argv[])
 { 
         int choice = 0;
+        char choice_c = '0';
         if(argc == 1)
         {
           printf("Выберите режим:\n");
@@ -22,7 +23,9 @@ int main(int argc, char* argv[])
             scanf("%s",&rule_set);
             const char* result = rules(rule_set);
 	    printf("Правила: %s\n", result);
-	    ask_for_change();
+            printf("Хотите изменить правила? (Y/n): ");
+            scanf(" %c",&choice_c);
+            if(choice_c == 'Y' || choice_c == 'y') modify_mode_temp(result);
             
           }
           else if (choice == 2)
@@ -31,7 +34,9 @@ int main(int argc, char* argv[])
                   printf("Ввеждите имя файла для отображения его правил: ");
                   scanf("%s",&filename);
                   print_file_permissions(filename);
-                  ask_for_change();
+                  printf("Хотите изменить правила? (Y/n): ");
+                  scanf(" %c",&choice_c);
+                  if(choice_c == 'Y' || choice_c == 'y') modify_mode_file(filename);
                }
           else
           {
