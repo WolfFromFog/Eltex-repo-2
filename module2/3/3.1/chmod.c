@@ -104,39 +104,82 @@ char* rule_picker_char(char rule)
 		break;
 	}
 }
+void mode_to_letters(mode_t mode, char* str)
+{
+   // Права пользователя
+    str[0] = (mode & S_IRUSR) ? 'r' : '-';
+    str[1] = (mode & S_IWUSR) ? 'w' : '-';
+    str[2] = (mode & S_IXUSR) ? 'x' : '-';
 
-void get_file_permission(const char* filename)
+    // Права группы
+    str[3] = (mode & S_IRGRP) ? 'r' : '-';
+    str[4] = (mode & S_IWGRP) ? 'w' : '-';
+    str[5] = (mode & S_IXGRP) ? 'x' : '-';
+
+    // Права других
+    str[6] = (mode & S_IROTH) ? 'r' : '-';
+    str[7] = (mode & S_IWOTH) ? 'w' : '-';
+    str[8] = (mode & S_IXOTH) ? 'x' : '-';
+    
+    str[9] = '\0';
+}
+mode_t get_file_permission(const char* filename)
 {
 	struct stat file_stat;
 
 	if (stat(filename, &file_stat) == -1) {
 		perror("Error reading file permissons");
-		return;
+		return -9999;
 	}
-
-	printf("\n=== File permissons for: %s ===\n", filename);
-        print_file_permissions(file_stat.st_mode);
-        printf("==================================\n\n");
-
+        return file_stat.st_mode;
+	//printf("\n=== File permissons for: %s ===\n", filename);
+        //print_file_permissions(file_stat.st_mode);
+        //printf("==================================\n\n");
+  
 }
 
-void print_file_permissions(mode_t mode)
+void print_file_permissions(const char* filename)
 {
+    
+    mode_t mode = get_file_permission(filename);
+    
+    char letters[10];
+    mode_to_letters(mode, letters);
+    
     mode_t perm_bits = mode & 0777;
   
     int owner_perm = (perm_bits >> 6) & 7;
     int group_perm = (perm_bits >> 3) & 7;
     int other_perm = perm_bits & 7;
     
-    char* owner_bits, group_bits, other_bits;
     
-    owner_bits = rule_picker_int(owner_perm);
-    group_bits = rule_picker_int(group_perm);
-    other_bits = rule_picker_int(other_perm);
-            
-    //printf("Letter: %s\n", letters);
+    
+    const char* owner_bits = rule_picker_int(owner_perm);
+    const char* group_bits = rule_picker_int(group_perm);
+    const char* other_bits = rule_picker_int(other_perm);
+    
+    printf("\n=== File permissons for: %s ===\n", filename);      
+    printf("Letter: %s\n", letters);
     printf("Numeric: %d%d%d\n", owner_perm, group_perm, other_perm);
     printf("Bit: %s%s%s\n", owner_bits, group_bits, other_bits);
-    printf("Полное числовое значение: %04o\n", perm_bits);
-    
+    printf("==================================\n\n");
 }
+void modify_mode()
+{
+  
+}
+void ask_for_change()
+{
+  char choice = '0';
+  printf("Хотите изменить правила? (Y/n): ");
+  while(choice != 'Y' || choice != 'y' || choice != 'N' || choice !='n')
+  {
+     scanf("%c",choice);
+     if(choice != 'Y' || choice != 'y' || choice != 'N' || choice !='n')
+     printf("Выберите Y/n:");
+  }
+ 
+  
+}
+
+

@@ -5,24 +5,61 @@
 
 
 int main(int argc, char* argv[])
-{
+{ 
+        int choice = 0;
+        if(argc == 1)
+        {
+          printf("Выберите режим:\n");
+          printf("1 - Ввод правил в консоль, вывод их бинарной формы\n");
+          printf("2 - Вывод правил файла:\n");
+          
+          scanf("%d",&choice);
+          
+          if(choice == 1)
+          {
+            char rule_set[10];
+            printf("Введи набор правил в консоль в формате \"777\" или \"rwxrwxrwx\": ");
+            scanf("%s",&rule_set);
+            const char* result = rules(rule_set);
+	    printf("Правила: %s\n", result);
+	    ask_for_change();
+            
+          }
+          else if (choice == 2)
+               {
+                  char filename[30];
+                  printf("Ввеждите имя файла для отображения его правил: ");
+                  scanf("%s",&filename);
+                  print_file_permissions(filename);
+                  ask_for_change();
+               }
+          else
+          {
+            printf("Выбрать неправильный режим. Закрытие \n");
+            return -1;
+          }
+        }
+        /*
 	const char* ch = "rwx------";
 
-	//char result[10];
+	char ruleset = argv[1];
 
 	const char* result = rules(ch);
 	printf("Result is: %s\n", result);
 	
 	if (argc > 1) {
           for (int i = 1; i < argc; i++) {
-              get_file_permission(argv[i]);
+              print_file_permissions(argv[i]);
           } 
         } else {
           
-          get_file_permission(".");
-          get_file_permission("chmod.c");
-          get_file_permission("main.c");
+          print_file_permissions(".");
+          print_file_permissions("chmod.c");
+          print_file_permissions("chmod.h");
+          print_file_permissions("main.c");
+          print_file_permissions("Makefile");
+          print_file_permissions("cast_chmod");
           }
-
+        */
 	return 0;
 }
