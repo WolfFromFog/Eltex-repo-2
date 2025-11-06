@@ -12,9 +12,9 @@ char* rules(const char* rule_set)
 
 	if (len == 3)
 	{
-		strcpy(str, rule_picker(rule_set[0]));
-		strcat(str, rule_picker(rule_set[1]));
-		strcat(str, rule_picker(rule_set[2]));
+		strcpy(str, rule_picker_char(rule_set[0]));
+		strcat(str, rule_picker_char(rule_set[1]));
+		strcat(str, rule_picker_char(rule_set[2]));
 		return str;
 	}
 	else if (len == 9)
@@ -35,7 +35,7 @@ char* rules(const char* rule_set)
 		}
 }
 
-char* rule_picker(char rule)
+char* rule_picker_char(char rule)
 {
 	switch (rule)
 	{
@@ -70,6 +70,41 @@ char* rule_picker(char rule)
 	}
 }
 
+ char* rule_picker_int(int rule)
+{
+	switch (rule)
+	{
+	case 0:
+		return "000";
+		break;
+	case 1:
+		return "001";
+		break;
+	case 2:
+		return "010";
+		break;
+	case 3:
+		return "011";
+		break;
+	case 4:
+		return "100";
+		break;
+	case 5:
+		return "101";
+		break;
+	case 6:
+		return "110";
+		break;
+	case 7:
+		return "111";
+		break;
+	default:
+		printf("Wrong rule!!!: %c", rule);
+		return NULL;
+		break;
+	}
+}
+
 void get_file_permission(const char* filename)
 {
 	struct stat file_stat;
@@ -79,12 +114,29 @@ void get_file_permission(const char* filename)
 		return;
 	}
 
-	printf("\n=== Права доступа для: %s ===\n", filename);
-
+	printf("\n=== File permissons for: %s ===\n", filename);
+        print_file_permissions(file_stat.st_mode);
+        printf("==================================\n\n");
 
 }
 
 void print_file_permissions(mode_t mode)
 {
-
+    mode_t perm_bits = mode & 0777;
+  
+    int owner_perm = (perm_bits >> 6) & 7;
+    int group_perm = (perm_bits >> 3) & 7;
+    int other_perm = perm_bits & 7;
+    
+    char* owner_bits, group_bits, other_bits;
+    
+    owner_bits = rule_picker_int(owner_perm);
+    group_bits = rule_picker_int(group_perm);
+    other_bits = rule_picker_int(other_perm);
+            
+    //printf("Letter: %s\n", letters);
+    printf("Numeric: %d%d%d\n", owner_perm, group_perm, other_perm);
+    printf("Bit: %s%s%s\n", owner_bits, group_bits, other_bits);
+    printf("РџРѕР»РЅРѕРµ С‡РёСЃР»РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: %04o\n", perm_bits);
+    
 }
