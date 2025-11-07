@@ -8,6 +8,7 @@ int main(int argc, char* argv[])
 { 
         int choice = 0;
         char choice_c = '0';
+        int Error = 0;
         if(argc == 1)
         {
           printf("Выберите режим:\n");
@@ -22,10 +23,16 @@ int main(int argc, char* argv[])
             printf("Введи набор правил в консоль в формате \"777\" или \"rwxrwxrwx\": ");
             scanf("%s",&rule_set);
             const char* result = rules(rule_set);
-	    printf("Правила: %s\n", result);
+            if(result == NULL)
+            {
+              return -1;
+            }
+	          printf("Правила: %s\n", result);
             printf("Хотите изменить правила? (Y/n): ");
             scanf(" %c",&choice_c);
-            if(choice_c == 'Y' || choice_c == 'y') modify_mode_temp(result);
+            if(choice_c == 'Y' || choice_c == 'y') Error = modify_mode_temp(result);
+            if(Error != 0)
+            return -1;
             
           }
           else if (choice == 2)
@@ -36,35 +43,15 @@ int main(int argc, char* argv[])
                   print_file_permissions(filename);
                   printf("Хотите изменить правила? (Y/n): ");
                   scanf(" %c",&choice_c);
-                  if(choice_c == 'Y' || choice_c == 'y') modify_mode_file(filename);
+                  if(choice_c == 'Y' || choice_c == 'y') Error = modify_mode_file(filename);
+                  if(Error != 0)
+                  return -1;
                }
           else
           {
-            printf("Выбрать неправильный режим. Закрытие \n");
+            printf("Выбран неправильный режим. Закрытие \n");
             return -1;
           }
         }
-        /*
-	const char* ch = "rwx------";
-
-	char ruleset = argv[1];
-
-	const char* result = rules(ch);
-	printf("Result is: %s\n", result);
-	
-	if (argc > 1) {
-          for (int i = 1; i < argc; i++) {
-              print_file_permissions(argv[i]);
-          } 
-        } else {
-          
-          print_file_permissions(".");
-          print_file_permissions("chmod.c");
-          print_file_permissions("chmod.h");
-          print_file_permissions("main.c");
-          print_file_permissions("Makefile");
-          print_file_permissions("cast_chmod");
-          }
-        */
 	return 0;
 }
