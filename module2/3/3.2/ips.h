@@ -42,6 +42,6 @@ int is_same_subnet(const network_config *config, uint32_t dest_ip);
 //Инициализация сети
 int initialize_network(network_config *config, const char *gateway_str, const char *mask_str);
 
-void net_tester(network_config *net,const char *adress, const char *mask, int number);
+int net_tester(network_config *net,const char *adress, const char *mask, int number);
 
 #endif 

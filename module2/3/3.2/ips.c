@@ -77,11 +77,13 @@ int initialize_network(network_config *config, const char *gateway_str, const ch
     return 1;
 }
 
-void net_tester(network_config *net, const char* address, const char* mask, int number)
+int net_tester(network_config *net, const char* address, const char* mask, int number)
 {
-    initialize_network(net, address, mask);
+    int bool = initialize_network(net, address, mask);
 
-    //printf("/")
+    if(bool)
+    {
+
     int stat_same = 0, stat_other = 0;
 
     uint32_t gen_ip = 0;
@@ -109,6 +111,13 @@ void net_tester(network_config *net, const char* address, const char* mask, int 
     printf("Всего запросов:                    %d\n", number);
     printf("Количество запросов в эту сеть:    %d, %.2f\% \n",stat_same, ( (double)stat_same /number * 100) );
     printf("Количество запросов в другую сеть: %d, %.2f\% \n",stat_other,((double)stat_other/number * 100) );
+    }
+    else
+    {
+        printf("Ошибка инициализации!!!\n");
+    }
+
+   
     
 
 }

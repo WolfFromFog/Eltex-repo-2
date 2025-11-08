@@ -19,8 +19,6 @@ int main(int argc, char* argv[])
         N  = atoi(argv[3]);
         
         net_tester(&net, adress, mask, N);
-
-       // printf("%s\n%s\n%d\n", adress, mask, N);
         }
         else
         {
@@ -46,9 +44,7 @@ int main(int argc, char* argv[])
         scanf("%d",&N);
 
         net_tester(&net, adress, mask, N);
-
-        //printf("%s\n%s\n%d\n", adress, mask, N);
-
+        
         free(adress);
         free(mask);
     }
