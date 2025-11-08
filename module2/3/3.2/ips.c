@@ -26,9 +26,9 @@ int parser_ipv4(const char  *str, ipv4_address *ip)
 uint32_t ip_to_uint32(const ipv4_address* ip)
 {
     return  ((uint32_t)ip->octets[0] << 24) |
-            ((uint32_t)ip->octets[2] << 16) |
-            ((uint32_t)ip->octets[3] << 8)  |
-            ((uint32_t)ip->octets[4]);
+            ((uint32_t)ip->octets[1] << 16) |
+            ((uint32_t)ip->octets[2] << 8)  |
+            ((uint32_t)ip->octets[3]);
 }
 
 // Преобразование 32-битного числа в IP адрес
@@ -51,7 +51,7 @@ uint32_t get_network_address(uint32_t ip, uint32_t mask)
 uint32_t generate_ip(uint32_t base_ip) 
 {
      // Генерируем смещение в диапазоне [-IP_RADIUS, +IP_RADIUS]
-    int offset = (rand() % (2 * IP_RADIUS + 1)) - IP_RADIUS;
+    int offset = (rand() % ( 2 * IP_RADIUS + 1)) - IP_RADIUS;
     
     // Применяем смещение к базовому IP
     return base_ip + offset;
@@ -107,8 +107,8 @@ void net_tester(network_config *net, const char* address, const char* mask, int 
     printf("Адресс сети: %s\n",address);
     printf("Масска сети: %s\n",mask);
     printf("Всего запросов:                    %d\n", number);
-    printf("Количество запросов в эту сеть:    %d, %d\% \n",stat_same, (stat_same/number * 100) );
-    printf("Количество запросов в другую сеть: %d, %d\% \n",stat_other,(stat_other/number * 100) );
+    printf("Количество запросов в эту сеть:    %d, %.2f\% \n",stat_same, ( (double)stat_same /number * 100) );
+    printf("Количество запросов в другую сеть: %d, %.2f\% \n",stat_other,((double)stat_other/number * 100) );
     
 
 }
