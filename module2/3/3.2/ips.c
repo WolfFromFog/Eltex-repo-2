@@ -50,7 +50,11 @@ uint32_t get_network_address(uint32_t ip, uint32_t mask)
 //Генерирует рандомный ip в радиусе $IP_RADIUS адресов
 uint32_t generate_ip(uint32_t base_ip) 
 {
-    return base_ip + (rand() % (2 * IP_RADIUS + 1)) - rand(); 
+     // Генерируем смещение в диапазоне [-IP_RADIUS, +IP_RADIUS]
+    int offset = (rand() % (2 * IP_RADIUS + 1)) - IP_RADIUS;
+    
+    // Применяем смещение к базовому IP
+    return base_ip + offset;
 }
 
 //Проверка, что адрес в нужной сети
