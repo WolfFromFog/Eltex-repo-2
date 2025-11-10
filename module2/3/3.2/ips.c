@@ -111,10 +111,12 @@ int net_tester(network_config *net, const char* address, const char* mask, int n
     printf("Всего запросов:                    %d\n", number);
     printf("Количество запросов в эту сеть:    %d, %.2f\% \n",stat_same, ( (double)stat_same /number * 100) );
     printf("Количество запросов в другую сеть: %d, %.2f\% \n",stat_other,((double)stat_other/number * 100) );
+    return 0;
     }
     else
     {
         printf("Ошибка инициализации!!!\n");
+        return 1;
     }
 
    
