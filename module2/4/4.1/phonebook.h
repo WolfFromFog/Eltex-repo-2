@@ -4,7 +4,7 @@
 
 
 #define MAX_CONTACTS 100
-#define JOB_LEN 50
+#define JOB_LEN 100
 #define PHONE_LEN 13
 #define FORMAT_LEN 11
 #define NAME_LEN 50

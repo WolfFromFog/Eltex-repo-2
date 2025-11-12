@@ -85,6 +85,7 @@ int createPerson(char p_name[], char p_surname[], char p_patronym[])
             if (insertAfter == tail)
                 {
                     //В конец
+                    tail->next=newNode;
                     newNode->next=NULL;
                     newNode->prev=tail;
                     tail=newNode;
