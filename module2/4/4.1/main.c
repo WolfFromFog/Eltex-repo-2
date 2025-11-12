@@ -52,8 +52,7 @@ int main()
     } while (choice != 0);
 
 
-    freaAll();
+    freeAll();
 
-    system("pause");
     return 0;
 }

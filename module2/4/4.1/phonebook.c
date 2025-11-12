@@ -18,19 +18,18 @@ char* copyString(const char* source) {
     strcpy(dest, source);
     return dest;
 }
-
+//Сравнить два контакта: 0 - равны, <0 первый стоить раньше второго, >0 первый стоит позже второго
 int comparePersons(Person* pers1, Person* pers2)
 {
     int surname_compare = strcmp(pers1->surname, pers2->surname);
     if (surname_compare !=0 ) return surname_compare;
-    else
-    {
-        int name_compare = strcmp(pers1->name, pers2->name);
-        if (name_compare !=0 ) return name_compare;
-        else return strcmp(pers1->patronym, pers2->patronym);
-    }
-}
 
+    int name_compare = strcmp(pers1->name, pers2->name);
+    if (name_compare !=0 ) return name_compare;
+
+    return strcmp(pers1->patronym, pers2->patronym);
+}
+//Поиск узла по контакту: NULL - равен head, возвращает указатель на узел. 
 Persons* findInsertPosition(Person* newPers)
 {
     Persons* current = head;
@@ -73,7 +72,7 @@ int createPerson(char p_name[], char p_surname[], char p_patronym[])
     }
     else 
     {
-        Persons* insertAfter = findInsertPosition(newNode);
+        Persons* insertAfter = findInsertPosition(newPerson);
         if (insertAfter == NULL)
         {
             //В начало
@@ -239,7 +238,7 @@ int editPerson(int personID, char format [], ...)
 }
 
 //Освбождение всей памяти
-void freaAll()
+void freeAll()
 {
     Persons* current = head;
     while (current != NULL)
@@ -340,7 +339,7 @@ int editPerson_ui()
 
     char format[FORMAT_LEN];
     printf("\nEnter format of editng: ");
-    scanf("%s", &format);
+    scanf("%10s", format);
 
     char new_name[NAME_LEN] = "";
     char new_surname[NAME_LEN] = "";
@@ -472,7 +471,7 @@ void showAllPersons_ui()
             current->person->phone[0] ? current->person->phone : "-",
             current->person->job[0] ? current->person->job : "-");
 
-        current->next;
+        current = current->next;
         id++;
     }
 }

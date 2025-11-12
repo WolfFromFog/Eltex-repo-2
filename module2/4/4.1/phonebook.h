@@ -9,7 +9,7 @@
 #define FORMAT_LEN 11
 #define NAME_LEN 50
 
-typedef struct {
+typedef struct Person {
 
    // int perID;
     char* name;
@@ -21,25 +21,29 @@ typedef struct {
 
 } Person;
 
-typedef struct {
+typedef struct Persons{
     Person *person;
-    Persons *prev;
-    Persons *next;
+   struct Persons *prev;
+   struct Persons *next;
 } Persons;
 
 //extern int currentPosition;
 extern Persons* head;
 extern Persons* tail;
+extern int persons_count;
 
+//Доп функции
 char* copyString(const char* source);
+int comparePersons(Person *pers1, Person *pers2);
+Persons *findInsertPosition(Person *newPers);
+void freeAll();
 
 //Логика
 
 int createPerson(char p_name[], char p_surname[], char p_patronym[]);
 int deletePerson(int personID);
 int editPerson(int personID, char format [], ...);
-//Освобождение
-void freaAll();
+
 
 //Интерфейс
 
