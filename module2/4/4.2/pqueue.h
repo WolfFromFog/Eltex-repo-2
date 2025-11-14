@@ -23,4 +23,13 @@ void heapifyUp(PriorityQueue *pq, int index);
 //Вставка
 void insert(PriorityQueue *pq, int priority, int value);
 
+//Перебалнсировка во время удаления
+void heapifyDown(PriorityQueue *pq, int index);
+
+//Удаление из очереди
+int dequeue(PriorityQueue *pq);
+
+//Просмотре последнего элемента из очереди
+int peek(PriorityQueue *pq);
+
 #endif
