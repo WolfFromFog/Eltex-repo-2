@@ -1,4 +1,4 @@
-#include "pqueue.c"
+#include "pqueue.h"
 #include <stdio.h> 
 #include <stdlib.h>
 

@@ -1,5 +1,6 @@
 #include "pqueue.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 void swap(int *a, int *b)
 {
@@ -55,8 +56,9 @@ int dequeue(PriorityQueue* pq)
     int item = pq->item[0];
 
     
-    pq->priority[0] = pq->priority[pq->size];
-    pq->item[0] = pq->item[pq->size];
+    pq->priority[0] = pq->priority[pq->size-1];
+    pq->item[0] = pq->item[pq->size-1];
+    pq->size--;
     
     heapifyDown(pq, 0);
     return item;
