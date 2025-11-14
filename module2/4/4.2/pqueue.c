@@ -26,8 +26,9 @@ void insert(PriorityQueue *pq, int priority, int value)
         return;
     }
 
-    pq->priority[pq->size++] = priority;
+    pq->priority[pq->size] = priority;
     pq->item[pq->size] = value;
+    pq->size++;
     heapifyUp(pq, pq->size - 1);
 }
 
@@ -52,9 +53,11 @@ void heapifyDown(PriorityQueue *pq, int index)
 int dequeue(PriorityQueue* pq)
 {
     int item = pq->item[0];
+
     
-    pq->item[0] = pq->item[--pq->size];
     pq->priority[0] = pq->priority[pq->size];
+    pq->item[0] = pq->item[pq->size];
+    
     heapifyDown(pq, 0);
     return item;
 }
@@ -68,4 +71,15 @@ int peek(PriorityQueue *pq)
     }
 
     return pq->item[0];
+}
+
+int peekPriority(PriorityQueue *pq)
+{
+    if (!pq->size)
+    {
+        printf("Priority queue is empty\n");
+        return -1;
+    }
+
+    return pq->priority[0];
 }

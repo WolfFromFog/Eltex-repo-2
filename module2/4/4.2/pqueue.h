@@ -29,7 +29,10 @@ void heapifyDown(PriorityQueue *pq, int index);
 //Удаление из очереди
 int dequeue(PriorityQueue *pq);
 
-//Просмотре последнего элемента из очереди
+//Просмотр первого элемента из очереди
 int peek(PriorityQueue *pq);
+
+//Просмотреть приоритет превого элемента в очереди
+int peekPriority(PriorityQueue *pq);
 
 #endif
