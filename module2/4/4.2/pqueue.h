@@ -5,12 +5,12 @@
 #define MAX_SIZE 100
 
 
-//Структура очереди: размер, приоритет, элемент
+//Структура очереди: размер, приоритет, элемент. Очередь сделана через бинарное дерево
 typedef struct
 {
     int size;
     int priority[MAX_SIZE];
-    int item[MAX_SIZE];
+    char* item[MAX_SIZE];
 
 } PriorityQueue;
 
