@@ -41,4 +41,8 @@ int peek(PriorityQueue *pq);
 //Просмотреть приоритет превого элемента в очереди
 int peekPriority(PriorityQueue *pq);
 
+//Просмотреть всю очередь
+void print(PriorityQueue *pq);
+
+
 #endif

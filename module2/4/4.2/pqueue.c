@@ -108,3 +108,18 @@ int peekPriority(PriorityQueue *pq)
 
     return pq->priority[0];
 }
+
+void print(PriorityQueue *pq)
+{
+
+    if (pq->size == 0)
+    {
+        printf("Очередь пуста");
+        return;
+    }
+    for (int i = 0; i < pq->size; i++)
+    {
+        printf("Элемент: %d, Приоритет: %d \n",pq->item[i],pq->priority[i]);
+    }
+}
+
