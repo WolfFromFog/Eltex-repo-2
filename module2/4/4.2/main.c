@@ -14,27 +14,52 @@ int main(int argc, char* argv[])
     insert(&pq, 0, "Всё норм 2.");
     insert(&pq, 1, "Всё почти норм");
     insert(&pq, 0, "Всё норм 3.");
-    insert(&pq, 5, "Всё норм 4.");
+    insert(&pq, 5, "Есть проблемки");
 
     print(&pq);
 
     priority = peekPriority(&pq);
     item = dequeue(&pq);
 
-        // Dequeue an item and print it
+    //Вывод из очереди верхнего элемента
     printf("С приоритетом %d элемент %s вышел из очереди \n", priority, item);
-    // Print the top item of the queue
-    printf("Верхний элемент %s с %d приоритетом\n", peek(&pq), peekPriority(&pq));
-    // Dequeue an item and print it
-    printf("С приоритетом %d элемент %s вышел из очереди \n", peekPriority(&pq), dequeue(&pq));
-    // Print the top item of the queue
-    printf("Верхний элемент %s с %d приоритетом\n", peek(&pq), peekPriority(&pq));
-    // Dequeue an item and print it
-    printf("С приоритетом %d элемент %s вышел из очереди \n", peekPriority(&pq), dequeue(&pq));
-    // Print the top item of the queue
-    printf("Верхний элемент %s с %d приоритетом\n", peek(&pq), peekPriority(&pq));
+    // Проверка очереди
+    print(&pq);
+
+    
+    item = dequeueWithPriority(&pq,0);
+
+    // Вывод из очереди первого элемента с приоритетом 0
+    printf("С приоритетом %d элемент %s вышел из очереди \n", 0, item);
+    // Проверка очереди
+    print(&pq);
+
+    insert(&pq, 40, "Всё Плохо!");
+    insert(&pq, 0, "Всё норм 4.");
+    insert(&pq, 100, "ПЛОХА!");
+    insert(&pq, 1, "Всё почти норм 2");
+    insert(&pq, 0, "Всё норм 5.");
+    insert(&pq, 20, "Есть проблемы!");
+
+    printf("=============Вставлены новые элементы ==================\n");
 
 
+    // Проверка очереди
+    print(&pq);
+
+    item = dequeueNotLessPriority(&pq, 15);
+
+    // Вывод из очереди первого элемента с приоритетом не ниже 15
+    printf("С приоритетом не ниже %d элемент %s вышел из очереди \n", 15, item);
+    // Проверка очереди
+    print(&pq);
+
+    item = dequeueNotLessPriority(&pq, 15);
+
+    // Вывод из очереди первого элемента с приоритетом не ниже 15
+    printf("С приоритетом не ниже %d элемент %s вышел из очереди \n", 15, item);
+    // Проверка очереди
+    print(&pq);
 
     return 0;
 }

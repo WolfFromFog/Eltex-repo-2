@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void swapChar(char *a, char *b)
+void swapChar(char **a, char **b)
 {
-    char temp = *a;
+    char *temp = *a;
     *a = *b;
     *b = temp;
 }
@@ -21,7 +21,7 @@ void heapifyUp(PriorityQueue *pq, int index)
     if (index && pq->priority[(index - 1) / 2] < pq->priority[index])
     {
         swapInt(&pq->priority[(index - 1) / 2], &pq->priority[index]);
-        swapChar(pq->item[(index - 1) / 2], pq->item[index]);
+        swapChar(&pq->item[(index - 1) / 2], &pq->item[index]);
         heapifyUp(pq, (index - 1) / 2);
     }
 }
@@ -53,7 +53,7 @@ void heapifyDown(PriorityQueue *pq, int index)
     if (largest != index)
     {
         swapInt(&pq->priority[index], &pq->priority[largest]);
-        swapChar(pq->item[index], pq->item[largest]);
+        swapChar(&pq->item[index], &pq->item[largest]);
         heapifyDown(pq, largest);
     }
 }
@@ -174,7 +174,7 @@ void print(PriorityQueue *pq)
             if (priorities[j] < priorities[j + 1])
             {
                 swapInt(&priorities[j], &priorities[j + 1]);
-                swapChar(items[j], items[j + 1]);
+                swapChar(&items[j], &items[j + 1]);
             }
         }
     }

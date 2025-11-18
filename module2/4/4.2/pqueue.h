@@ -18,7 +18,7 @@ typedef struct
 void swapInt(int *a, int *b);
 
 //Помена двух значений строк
-void swapChar(char *a, char *b);
+void swapChar(char **a, char **b);
 
 //Функция, чтобы поддерживать баланс во время вставок
 void heapifyUp(PriorityQueue *pq, int index);
