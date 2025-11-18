@@ -2,9 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void swap(char *a, char *b)
+void swapChar(char *a, char *b)
 {
     char temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void swapInt(int *a, int *b)
+{
+    int temp = *a;
     *a = *b;
     *b = temp;
 }
@@ -13,13 +20,13 @@ void heapifyUp(PriorityQueue *pq, int index)
 {
     if (index && pq->priority[(index - 1) / 2] < pq->priority[index])
     {
-        swap(&pq->priority[(index - 1) / 2], &pq->priority[index]);
-        swap(&pq->item[(index - 1) / 2], &pq->item[index]);
+        swapInt(&pq->priority[(index - 1) / 2], &pq->priority[index]);
+        swapChar(pq->item[(index - 1) / 2], pq->item[index]);
         heapifyUp(pq, (index - 1) / 2);
     }
 }
 
-void insert(PriorityQueue *pq, int priority, const char message[])
+void insert(PriorityQueue *pq, int priority, char* value)
 {
     if (pq->size == MAX_SIZE)
     {
@@ -28,7 +35,7 @@ void insert(PriorityQueue *pq, int priority, const char message[])
     }
 
     pq->priority[pq->size] = priority;
-    pq->item[pq->size] = message;
+    pq->item[pq->size] = value;
     pq->size++;
     heapifyUp(pq, pq->size - 1);
 }
@@ -45,26 +52,34 @@ void heapifyDown(PriorityQueue *pq, int index)
         largest = right;
     if (largest != index)
     {
-        swap(&pq->priority[index], &pq->priority[largest]);
-        swap(&pq->item[index], &pq->item[largest]);
+        swapInt(&pq->priority[index], &pq->priority[largest]);
+        swapChar(pq->item[index], pq->item[largest]);
         heapifyDown(pq, largest);
     }
 }
 
-int dequeue(PriorityQueue* pq)
+char* dequeue(PriorityQueue* pq)
 {
+    if (pq->size == 0)
+    {
+        printf("Очередь пуста!\n");
+        return NULL;
+    }
     char* item = pq->item[0];
 
     
     pq->priority[0] = pq->priority[pq->size-1];
     pq->item[0] = pq->item[pq->size-1];
     pq->size--;
-    
-    heapifyDown(pq, 0);
+
+    if (pq->size > 0)
+    {
+        heapifyDown(pq, 0);
+    }
     return item;
 }
 
-int dequeueWithPriority(PriorityQueue *pq, int priority)
+char* dequeueWithPriority(PriorityQueue *pq, int priority)
 {
     char* item;
     for(int i = 0; i < pq->size; i++)
@@ -84,10 +99,10 @@ int dequeueWithPriority(PriorityQueue *pq, int priority)
             return item;
         }
     }
-    return -1;
+    return NULL;
 }
 
-int dequeueNotLessPriority(PriorityQueue *pq, int priority)
+char* dequeueNotLessPriority(PriorityQueue *pq, int priority)
 {
     char* item;
     for (int i = 0; i < pq->size; i++)
@@ -107,15 +122,15 @@ int dequeueNotLessPriority(PriorityQueue *pq, int priority)
             return item;
         }
     }
-    return -1;
+    return NULL;
 }
 
-int peek(PriorityQueue *pq)
+char* peek(PriorityQueue *pq)
 {
     if (!pq->size)
     {
         printf("Priority queue is empty\n");
-        return -1;
+        return NULL;
     }
 
     return pq->item[0];
@@ -158,15 +173,15 @@ void print(PriorityQueue *pq)
         {
             if (priorities[j] < priorities[j + 1])
             {
-                swap(&priorities[j], &priorities[j + 1]);
-                swap(&items[j], &items[j + 1]);
+                swapInt(&priorities[j], &priorities[j + 1]);
+                swapChar(items[j], items[j + 1]);
             }
         }
     }
     
     for (int i = 0; i < size; i++)
     {
-        printf("Элемент: %d, Приоритет: %d\n", items[i], priorities[i]);
+        printf("Элемент: %s, Приоритет: %d\n", items[i], priorities[i]);
     }
 }
 

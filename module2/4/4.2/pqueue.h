@@ -14,29 +14,32 @@ typedef struct
 
 } PriorityQueue;
 
-//Помена двух значений
-void swap(int *a, int *b);
+//Помена двух значений приоритетов
+void swapInt(int *a, int *b);
+
+//Помена двух значений строк
+void swapChar(char *a, char *b);
 
 //Функция, чтобы поддерживать баланс во время вставок
 void heapifyUp(PriorityQueue *pq, int index);
 
 //Вставка
-void insert(PriorityQueue *pq, int priority, int value);
+void insert(PriorityQueue *pq, int priority, char* value);
 
 //Перебалнсировка во время удаления
 void heapifyDown(PriorityQueue *pq, int index);
 
 //Удаление из очереди первого элемента
-int dequeue(PriorityQueue *pq);
+char* dequeue(PriorityQueue *pq);
 
 //Удаление из очереди первого элемента с заданным приоритетом
-int dequeueWithPriority(PriorityQueue *pq, int priority);
+char* dequeueWithPriority(PriorityQueue *pq, int priority);
 
 //Удаление из очереди первого элемента с приоритетом не ниже заданного
-int dequeueNotLessPriority(PriorityQueue *pq, int priority);
+char* dequeueNotLessPriority(PriorityQueue *pq, int priority);
 
 //Просмотр первого элемента из очереди
-int peek(PriorityQueue *pq);
+char* peek(PriorityQueue *pq);
 
 //Просмотреть приоритет превого элемента в очереди
 int peekPriority(PriorityQueue *pq);
