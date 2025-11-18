@@ -64,6 +64,29 @@ int dequeue(PriorityQueue* pq)
     return item;
 }
 
+int dequeueWithPriority(PriorityQueue *pq, int priority)
+{
+    int item;
+    for(int i = 0; i < pq->size; i++)
+    {
+        if (pq->priority[i] == priority)
+        {
+            item = pq->item[i];
+            pq->priority[i] = pq->priority[pq->size - 1];
+            pq->item[i] = pq->item[pq->size - 1];
+            pq->size--;
+            heapifyDown(pq, 0);
+            return item;
+        }
+    }
+    return 0;
+}
+
+int dequeueNotLessPriority(PriorityQueue *pq, int priority)
+{
+    return 0;
+}
+
 int peek(PriorityQueue *pq)
 {
     if (!pq->size)

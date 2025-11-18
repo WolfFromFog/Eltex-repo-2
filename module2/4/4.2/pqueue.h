@@ -26,8 +26,14 @@ void insert(PriorityQueue *pq, int priority, int value);
 //Перебалнсировка во время удаления
 void heapifyDown(PriorityQueue *pq, int index);
 
-//Удаление из очереди
+//Удаление из очереди первого элемента
 int dequeue(PriorityQueue *pq);
+
+//Удаление из очереди первого элемента с заданным приоритетом
+int dequeueWithPriority(PriorityQueue *pq, int priority);
+
+//Удаление из очереди первого элемента с приоритетом не ниже заданного
+int dequeueNotLessPriority(PriorityQueue *pq, int priority);
 
 //Просмотр первого элемента из очереди
 int peek(PriorityQueue *pq);
