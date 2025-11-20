@@ -1,5 +1,5 @@
 #ifndef CHECKER_H
 
-int isNumber(const char *str);
+void checkNumberType(const char *str);
 
 #endif

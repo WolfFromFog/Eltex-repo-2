@@ -1,30 +1,27 @@
 #include "checker.h"
 #include <string.h>
-#include <ctype.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-int isNumber(const char *str)
+void checkNumberType(const char *str)
 {
-    int len = strlen(str);
-    int pointCounter = 0;
+    int int_val;
+    double double_val;
+    char extra;
 
-    for (int i = 0; i < len; i++)
+
+    if (sscanf(str, "%d%c", &int_val, &extra) == 1)
     {
-        if (!isdigit(str[i]))
-        {
-            if (str[i] == '.' && i != 0)
-            {
-                pointCounter++;
-            }
-            else
-            {
-                return 1;
-            }
-        }
-        if (pointCounter > 1)
-        {
-            return 1;
-        }
+        printf("[PID %d] %s - целое, %d x 2 = %d \n", getpid(), str, int_val, int_val*2);
+        return;
     }
 
-    return 0;
+    if (sscanf(str, "%lf%c", &double_val, &extra) == 1)
+    {
+        printf("[PID %d] %s - вещественное, %.4f x 2 = %.4f \n", getpid(), str, double_val, double_val * 2);
+        return;
+    }
+
+    printf("[PID %d] %s  - строка \n", getpid(), str);
 }
