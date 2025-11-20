@@ -8,9 +8,7 @@
 
 int main(int argc, char *argv[])
 {
-
-
-    if (argc >= 1)
+    if (argc > 1)
     {
         int total_argc = argc-1;
         int args_per_proc = total_argc / 2;
@@ -44,6 +42,10 @@ int main(int argc, char *argv[])
             _exit(EXIT_SUCCESS);
             break;
         }
+    }
+    else
+    {
+        printf("Нету рагументов.\n");
     }
 
     return 0;
