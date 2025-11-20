@@ -1,6 +1,6 @@
 #ifndef INTERPRETER_H
 
-#define MAX_IMPUT 50
+#define MAX_INPUT 50
 #define MAX_ARGS 10
 
 //Парсинг аргументов

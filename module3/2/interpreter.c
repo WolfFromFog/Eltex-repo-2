@@ -10,6 +10,11 @@
 int parse_input(char *input, char *argv[])
 {
     int argc = 0;
+    char input_copy[MAX_INPUT];
+
+    // Копия входной строки для безопасного разбиения
+    strncpy(input_copy, input, sizeof(input_copy) - 1);
+    input_copy[sizeof(input_copy) - 1] = '\0';
 
     //Взятие превого аргумента
     char* token = strtok(input, " \t\n");
@@ -49,7 +54,7 @@ char *find_executable(char *command)
     snprintf(full_path, sizeof(full_path), "./%s", command);
     if (file_exist(full_path))
     {
-        return full_path;
+        return strdup(full_path);
     }
     //Системные
     char* path = getenv("PATH");
@@ -68,7 +73,7 @@ char *find_executable(char *command)
         if (file_exist(full_path))
         {
             free(path_copy);
-            return full_path;
+            return strdup(full_path);
         }
 
         dir = strtok(NULL, ":");
@@ -81,15 +86,21 @@ char *find_executable(char *command)
 
 void execute_command(char *argv[])
 {
-    pid_t pid;
 
-    switch (pid = fork())
+    if (argv[0] == NULL)
     {
-    case -1:
+        return;
+    }
+
+    pid_t pid = fork();
+     
+    
+    if( pid == -1)
+    {
         perror("fork");
-        exit(EXIT_FAILURE);
-        break;
-    case 0:
+        return;
+    }
+    else if (pid == 0){
         char *exec_path = find_executable(argv[0]);
 
         if (exec_path == NULL)
@@ -102,10 +113,10 @@ void execute_command(char *argv[])
 
         perror("execv");
         exit(EXIT_FAILURE);
-
-    default:
+    }
+    
+    else{
         int status;
         waitpid(pid, &status, 0);
-        break;
     }
 }

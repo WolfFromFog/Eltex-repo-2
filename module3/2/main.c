@@ -5,7 +5,7 @@
 
 int main()
 {
-    char input[MAX_IMPUT];
+    char input[MAX_INPUT];
     char* argv[MAX_ARGS];
 
     printf("Для выхода из интерпретатора ввести: exit \n");
