@@ -51,7 +51,7 @@ int readFileToArr(int filedescriptor)
 
     if(isFileEmpty(filedescriptor))
     {
-        return 0;
+        return 1;
     }
 
     char line[512];
