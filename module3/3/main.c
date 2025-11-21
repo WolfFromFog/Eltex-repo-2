@@ -10,7 +10,7 @@ int main()
 {
     int filedesc;
     int choice;
-    int result = 0;
+    int result;
     char filename[] ="phonebook.txt";
 
     filedesc = open(filename, O_RDWR | O_CREAT);
@@ -58,7 +58,7 @@ int main()
             default:
                 printf("\nWrong choise! Try again.\n");
         }
-       /* switch (result)
+        switch (result)
         {
         case -1:
             printf("\nError: Phonebook is full\n");
@@ -75,9 +75,7 @@ int main()
         default:
             
             break;
-        }*/
+        }
     } while (choice != 0);
-
-    system("pause");
     return 0;
 }

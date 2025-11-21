@@ -234,7 +234,7 @@ int editPerson_ui(int filedescriptor)
 
     char format[FORMAT_LEN];
     printf("\nEnter format of editng: ");
-    scanf("%s", &format);
+    scanf("%s", format);
 
     char new_name[NAME_LEN] = "";
     char new_surname[NAME_LEN] = "";
@@ -346,7 +346,8 @@ int editPerson_ui(int filedescriptor)
 
 void showAllPersons_ui(int filedescriptor)
 {
-    if (currentPosition == 0) {
+    if (isFileEmpty(filedescriptor))
+    {
         printf("\nPhonebook is empty!\n");
         return;
     }
@@ -360,7 +361,7 @@ void showAllPersons_ui(int filedescriptor)
             i,
             persons[i].surname,
             persons[i].name,
-            persons[i].patronym ? persons[i].patronym : "-",
+            persons[i].patronym[0] ? persons[i].patronym : "-",
             persons[i].phone[0] ? persons[i].phone : "-",
             persons[i].job[0] ? persons[i].job : "-");
     }

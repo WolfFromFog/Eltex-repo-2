@@ -28,7 +28,8 @@ extern Person persons[];
 char* copyString(const char* source);
 
 //Для работы с файлами
-int filereader(int filedescriptor);
+int readFileToArr(int filedescriptor);
+int writeArrToFile(int filedescriptor);
 int isFileEmpty(int filedescriptor);
 
 //Логика
