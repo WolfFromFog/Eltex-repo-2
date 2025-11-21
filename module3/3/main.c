@@ -20,6 +20,10 @@ int main()
         return -1;
     }
     
+    if(readFileToArr(filedesc)!=0)
+    {
+        printf("Файл пуст\n");
+    }
 
     printf("\n=== PHONE BOOK ===\n");
     
@@ -77,5 +81,10 @@ int main()
             break;
         }
     } while (choice != 0);
+
+    writeArrToFile(filedesc);
+
+    close(filedesc);
+
     return 0;
 }

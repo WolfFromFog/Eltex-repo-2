@@ -19,8 +19,51 @@ char* copyString(const char* source) {
     return dest;
 }
 
-int filereader(int filedescriptor)
+int readFileToArr(int filedescriptor)
 {
+    lseek(filedescriptor, 0,SEEK_CUR);
+
+    currentPosition = 0;
+
+    int bytesRead;
+    Person tempPerson;
+
+    while (currentPosition < MAX_CONTACTS)
+    {
+        bytesRead = read(filedescriptor, &tempPerson, sizeof(Person));
+
+        if (bytesRead == 0)
+        {
+            break;
+        }
+
+        if (bytesRead == sizeof(Person))
+        {
+            persons[currentPosition++] = tempPerson;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    
+
+    return 0;
+}
+
+int writeArrToFile(int filedescriptor)
+{
+    //ftruncate(filedescriptor, 0);
+    lseek(filedescriptor, 0, SEEK_SET);
+
+    for (int i = 0; i < currentPosition; i++)
+    {
+        ssize_t bWritten = write(filedescriptor, &persons[i],sizeof(Person));
+        if(bWritten != sizeof(Person))
+        {
+            return -1;
+        }
+    }
     return 0;
 }
 
@@ -63,19 +106,11 @@ int deletePerson(int personID)
 
     for (int i = personID; i < currentPosition - 1; i++)
     {
-        strcpy(persons[i].name, persons[i + 1].name);
-        strcpy(persons[i].surname, persons[i + 1].surname);
-        strcpy(persons[i].patronym, persons[i + 1].patronym);
-        strcpy(persons[i].phone, persons[i + 1].phone);
-        strcpy(persons[i].job, persons[i + 1].job);
+        persons[i]=persons[i+1];
     }
     
     if (currentPosition > 0) {
-        persons[currentPosition - 1].name[0] = '\0';
-        persons[currentPosition - 1].surname[0] = '\0';
-        persons[currentPosition - 1].patronym[0] = '\0';
-        persons[currentPosition - 1].phone[0] = '\0';
-        persons[currentPosition - 1].job[0] = '\0';
+        memset(&persons[currentPosition-1],0,sizeof(Person));
     }
     currentPosition--;
     return 0;
@@ -227,6 +262,9 @@ int editPerson_ui(int filedescriptor)
     printf("\nEnter contact ID to edit: ");
     scanf("%d", &personID);
 
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+
     if (personID < 0 || personID >= currentPosition) {
         printf("\nWrong ID!\n");
         return -3; // Неверный ID
@@ -235,6 +273,9 @@ int editPerson_ui(int filedescriptor)
     char format[FORMAT_LEN];
     printf("\nEnter format of editng: ");
     scanf("%s", format);
+
+    // Очищаем буфер stdin после scanf
+    while ((c = getchar()) != '\n' && c != EOF);
 
     char new_name[NAME_LEN] = "";
     char new_surname[NAME_LEN] = "";
@@ -249,27 +290,32 @@ int editPerson_ui(int filedescriptor)
 
             switch (format[i]) {
             case 'n':
-                printf("\nEnter new name: ");
-                scanf("%s", new_name);
+                printf("\nВведиет новое имя: ");
+                fgets(new_name, NAME_LEN, stdin);
+                new_name[strcspn(new_name, "\n")] = 0;
                 break;
             case 's':
-                printf("\nEnter new surname: ");
-                scanf("%s", new_surname);
+                printf("\nВведиет новую фамилию: ");
+                fgets(new_surname, NAME_LEN, stdin);
+                new_surname[strcspn(new_surname, "\n")] = 0;
                 break;
             case 'p':
-                printf("\nEnter new patronym: ");
-                scanf("%s", new_patronym);
+                printf("\nВведиет новое отчество: ");
+                fgets(new_patronym, NAME_LEN, stdin);
+                new_patronym[strcspn(new_patronym, "\n")] = 0;
                 break;
             case 'j':
-                printf("\nEnter new job: ");
-                scanf("%s", new_job);
+                printf("\nВведиет новую работу: ");
+                fgets(new_job, JOB_LEN, stdin);
+                new_job[strcspn(new_job, "\n")] = 0;
                 break;
             case 'P':
-                printf("\nEnter new phone: ");
-                scanf("%12s", new_phone);
+                printf("\nВведиет новый телефон: ");
+                fgets(new_phone, PHONE_LEN, stdin);
+                new_phone[strcspn(new_phone, "\n")] = 0;
                 break;
             default:
-                printf("\nWrong Fromat\n");
+                printf("\nНеверный формат\n");
                 return -5;
             }
         }
@@ -335,7 +381,7 @@ int editPerson_ui(int filedescriptor)
         printf("\nContact edited successfully!\n");
         break;
     case -3:
-        printf("\nWrong ID!\n");
+        printf("\nНеверный ID!\n");
         break;
     default:
         break;
@@ -346,7 +392,7 @@ int editPerson_ui(int filedescriptor)
 
 void showAllPersons_ui(int filedescriptor)
 {
-    if (isFileEmpty(filedescriptor))
+    if (currentPosition == 0)
     {
         printf("\nPhonebook is empty!\n");
         return;
