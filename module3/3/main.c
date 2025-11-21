@@ -13,7 +13,7 @@ int main()
     int result;
     char filename[] ="phonebook.txt";
 
-    filedesc = open(filename, O_RDWR | O_CREAT);
+    filedesc = open(filename, O_RDWR | O_CREAT, 0644);
     if (filedesc ==-1)
     {
         perror("Ошибка открытия");

@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 //Логика
 
@@ -19,32 +20,92 @@ char* copyString(const char* source) {
     return dest;
 }
 
+int readLine(int filedescriptor, char *buff, int size)
+{
+    int i=0;
+    char c;
+
+    while(i<size-1)
+    {
+        ssize_t result = read(filedescriptor, &c, 1);
+        if (result <=0)
+        {
+            break;
+        }
+        if (c == '\n')
+        {
+            break;
+        }
+        buff[i++]=c;        
+    }
+    buff[i]='\0';
+    return i;
+}
+
 int readFileToArr(int filedescriptor)
 {
-    lseek(filedescriptor, 0,SEEK_CUR);
+    
+    lseek(filedescriptor, 0, SEEK_SET);
 
     currentPosition = 0;
 
-    int bytesRead;
-    Person tempPerson;
+    if(isFileEmpty(filedescriptor))
+    {
+        return 0;
+    }
 
+    char line[512];
+    int bytesRead;
+
+    lseek(filedescriptor, 0, SEEK_SET);
     while (currentPosition < MAX_CONTACTS)
     {
-        bytesRead = read(filedescriptor, &tempPerson, sizeof(Person));
+        bytesRead = readLine(filedescriptor, line, sizeof(line));
 
-        if (bytesRead == 0)
+        if (bytesRead <= 0)
         {
             break;
         }
 
-        if (bytesRead == sizeof(Person))
+        // Пропускаем пустые строки
+        if (strlen(line) == 0)
         {
-            persons[currentPosition++] = tempPerson;
+            continue;
         }
-        else
+
+        Person tempPerson;
+        int fieldIndex = 0;
+        char *token = strtok(line, "|");
+
+        while(token!= NULL && fieldIndex < 5)
         {
-            return -1;
+            switch (fieldIndex)
+            {
+            case 0:
+                strcpy(tempPerson.name,token);
+                tempPerson.name[NAME_LEN - 1]='\0';
+                break;
+            case 1:
+                strcpy(tempPerson.surname, token);
+                tempPerson.surname[NAME_LEN - 1] = '\0';
+                break;
+            case 2:
+                strcpy(tempPerson.patronym, token);
+                tempPerson.patronym[NAME_LEN - 1] = '\0';
+                break;
+            case 3:
+                strcpy(tempPerson.phone, token);
+                tempPerson.phone[PHONE_LEN - 1] = '\0';
+                break;
+            case 4:
+                strcpy(tempPerson.job, token);
+                tempPerson.job[JOB_LEN - 1] = '\0';
+                break;
+            }
+            token = strtok(NULL, "|");
+            fieldIndex++;
         }
+        persons[currentPosition++] = tempPerson;
     }
     
 
@@ -53,17 +114,47 @@ int readFileToArr(int filedescriptor)
 
 int writeArrToFile(int filedescriptor)
 {
-    //ftruncate(filedescriptor, 0);
-    lseek(filedescriptor, 0, SEEK_SET);
+    char temp_filename[] = "phonebook_temp.txt";
+    int temp_fd = open(temp_filename, O_RDWR | O_CREAT, 0644);
+
+    if (temp_fd == -1)
+    {
+        return -1;
+    }
+
 
     for (int i = 0; i < currentPosition; i++)
     {
-        ssize_t bWritten = write(filedescriptor, &persons[i],sizeof(Person));
-        if(bWritten != sizeof(Person))
+        char line[512];
+        int len = snprintf(line, sizeof(line), "%s|%s|%s|%s|%s\n",
+                           persons[i].name,
+                           persons[i].surname,
+                           persons[i].patronym,
+                           persons[i].phone,
+                           persons[i].job);
+
+        if(len > 0)
         {
-            return -1;
+            ssize_t bWritten = write(temp_fd, line, len);
+            if (bWritten != len)
+            {
+                close(temp_fd);
+                remove(temp_filename);
+                return -1;
+            }
         }
+        
     }
+
+    fsync(temp_fd);
+    close(temp_fd);
+
+    if (rename(temp_filename, "phonebook.txt") != 0)
+    {
+        remove(temp_filename);
+        return -1;
+    }
+
     return 0;
 }
 

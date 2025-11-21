@@ -26,6 +26,7 @@ extern int currentPosition;
 extern Person persons[];
 
 char* copyString(const char* source);
+int readLine(int filedescriptor, char *buff, int size);
 
 //Для работы с файлами
 int readFileToArr(int filedescriptor);
