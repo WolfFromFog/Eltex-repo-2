@@ -115,7 +115,7 @@ int readFileToArr(int filedescriptor)
 int writeArrToFile(int filedescriptor)
 {
     char temp_filename[] = "phonebook_temp.txt";
-    int temp_fd = open(temp_filename, O_RDWR | O_CREAT, 0644);
+    int temp_fd = open(temp_filename, O_RDWR | O_CREAT, 0777);
 
     if (temp_fd == -1)
     {
