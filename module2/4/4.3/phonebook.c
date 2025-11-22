@@ -75,6 +75,18 @@ phonebook *findNode(phonebook *node, int key)
     }
     return result;
 }
+void printTreeAsTree(phonebook *node, int level)
+{
+    if (node!=NULL)
+    {
+        printTreeAsTree(node->left, level + 1);
+        for (int i = 0; i < level; i++)
+            printf("   ");
+        printf("%d \n", node->key);
+        printTreeAsTree(node->right, level + 1);
+    }
+    
+}
 /*
 int treeDel(phonebook **node)
 {

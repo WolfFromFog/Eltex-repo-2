@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
-int positionCounter = 0;
-//phonebook *root = NULL;
-
 int main()
 {
 
@@ -21,6 +17,7 @@ int main()
         printf("2. Add contact\n");
         printf("3. Edit contact\n");
         printf("4. Delete contact\n");
+        printf("5. Show tree\n");
         printf("0. Exit\n");
         printf("Choose action: ");
 
@@ -43,6 +40,10 @@ int main()
             case 4:
                 printf("\nDeleting contact...\n");
                 result = deletePerson_ui(&root);
+                break;
+            case 5:
+                printf("\nShowing tree...\n");
+                printTreeAsTree(root, 0);
                 break;
             case 0:
                 printf("\nExiting programm...\n");

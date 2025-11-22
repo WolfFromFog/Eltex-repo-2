@@ -39,8 +39,9 @@ void insTree(phonebook **node,  int key, Person person);
 void printTree(phonebook *node);
 phonebook *findNode(phonebook *node, int key);
 //int treeDel(phonebook **node);
+void printTreeAsTree(phonebook *node, int level);
 
-// Логика
+    // Логика
 
 int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook **node);
 int deletePerson(int personID, phonebook **node);
