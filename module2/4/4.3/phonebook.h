@@ -21,10 +21,21 @@ typedef struct {
 
 } Person;
 
+typedef struct phonebook
+{
+    int key;
+    Person person;
+    struct phonebook *left, *right;
+
+} phonebook;
+
 extern int currentPosition;
 extern Person persons[];
 
 char* copyString(const char* source);
+
+//Операции с деревом
+void insTree(phonebook **book,  int key, Person prsn);
 
 //Логика
 

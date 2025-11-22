@@ -16,7 +16,26 @@ char* copyString(const char* source) {
     return dest;
 }
 
-
+void insTree(phonebook **book, int key, Person person)
+{
+    if (*book == NULL)
+    {
+        *book = malloc(sizeof(phonebook));
+        (*book)->left = (*book)->right = NULL;
+        (*book)->key = key;
+        (*book)->person = person;
+        return;
+    }
+    if((*book)->key > key)
+    {
+        insTree(&(*book)->left, key, person);
+    }
+    else
+    {
+        insTree(&(*book)->right, key, person);
+    }
+    
+}
 
 int createPerson(char p_name[], char p_surname[], char p_patronym[])
 {
@@ -233,7 +252,7 @@ int editPerson_ui()
 
     char format[FORMAT_LEN];
     printf("\nEnter format of editng: ");
-    scanf("%s", &format);
+    scanf("%s", format);
 
     char new_name[NAME_LEN] = "";
     char new_surname[NAME_LEN] = "";

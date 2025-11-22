@@ -4,7 +4,6 @@
 
 
 int positionCounter = 0;
-Person mass[MAX_CONTACTS];
 
 int main()
 {
@@ -49,7 +48,7 @@ int main()
             default:
                 printf("\nWrong choise! Try again.\n");
         }
-       /* switch (result)
+        switch (result)
         {
         case -1:
             printf("\nError: Phonebook is full\n");
@@ -66,7 +65,7 @@ int main()
         default:
             
             break;
-        }*/
+        }
     } while (choice != 0);
 
 
