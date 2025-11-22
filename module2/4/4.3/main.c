@@ -4,6 +4,7 @@
 
 
 int positionCounter = 0;
+//phonebook *root = NULL;
 
 int main()
 {
@@ -11,6 +12,7 @@ int main()
     int choice;
     int result = 0;
     
+
     printf("\n=== PHONE BOOK ===\n");
     
     do {
@@ -28,19 +30,19 @@ int main()
         switch(choice) {
             case 1:
                 printf("\nShowing contacts...\n");
-                showAllPersons_ui();
+                showAllPersons_ui(root);
                 break;
             case 2:
                 printf("\nAdding contact...\n");
-                result = createPerson_ui();
+                result = createPerson_ui(&root);
                 break;
             case 3:
                 printf("\nEditing contact...\n");
-                result = editPerson_ui();
+                result = editPerson_ui(root);
                 break;
             case 4:
                 printf("\nDeleting contact...\n");
-                result = deletePerson_ui();
+                result = deletePerson_ui(&root);
                 break;
             case 0:
                 printf("\nExiting programm...\n");
@@ -68,13 +70,10 @@ int main()
         }
     } while (choice != 0);
 
-
-    for (int i = 0; i < MAX_CONTACTS; i++) {
-        free(persons[i].name);
-        free(persons[i].surname);
-        free(persons[i].patronym);
+    for (int i = 0; i < currentPosition; i++)
+    {
+        deletePerson(i, &root);
     }
-
-    system("pause");
+    
     return 0;
 }

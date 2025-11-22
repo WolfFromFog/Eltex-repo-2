@@ -30,25 +30,27 @@ typedef struct phonebook
 } phonebook;
 
 extern int currentPosition;
-extern Person persons[];
+extern phonebook *root;
 
 char* copyString(const char* source);
 
 //Операции с деревом
-void insTree(phonebook **book,  int key, Person prsn);
+void insTree(phonebook **node,  int key, Person person);
+void printTree(phonebook *node);
+phonebook *findNode(phonebook *node, int key);
+//int treeDel(phonebook **node);
 
-//Логика
+// Логика
 
-int createPerson(char p_name[], char p_surname[], char p_patronym[]);
-int deletePerson(int personID);
-int editPerson(int personID, char format [], ...);
-
+int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook **node);
+int deletePerson(int personID, phonebook **node);
+int editPerson(int personID, phonebook *node, char format[], ...);
 
 //Интерфейс
 
-int createPerson_ui();
-int deletePerson_ui();
-int editPerson_ui();
-void showAllPersons_ui();
+int createPerson_ui(phonebook **book);
+int deletePerson_ui(phonebook **book);
+int editPerson_ui(phonebook *book);
+void showAllPersons_ui(phonebook *book);
 
 #endif

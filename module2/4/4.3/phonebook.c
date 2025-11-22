@@ -6,7 +6,8 @@
 
 //Логика
 
-Person persons[MAX_CONTACTS];
+phonebook *root = NULL;
+
 int currentPosition = 0;
 
 //Сразу выделить/перевыделить память под динамический charник и скопировать туда
@@ -15,29 +16,82 @@ char* copyString(const char* source) {
     strcpy(dest, source);
     return dest;
 }
-
-void insTree(phonebook **book, int key, Person person)
+//Вставка в дерево
+void insTree(phonebook **node, int key, Person person)
 {
-    if (*book == NULL)
+    if (*node == NULL)
     {
-        *book = malloc(sizeof(phonebook));
-        (*book)->left = (*book)->right = NULL;
-        (*book)->key = key;
-        (*book)->person = person;
+        *node = malloc(sizeof(phonebook));
+        (*node)->left = (*node)->right = NULL;
+        (*node)->key = key;
+        (*node)->person = person;
         return;
     }
-    if((*book)->key > key)
+    if ((*node)->key > key)
     {
-        insTree(&(*book)->left, key, person);
+        insTree(&(*node)->left, key, person);
     }
     else
     {
-        insTree(&(*book)->right, key, person);
+        insTree(&(*node)->right, key, person);
     }
     
 }
 
-int createPerson(char p_name[], char p_surname[], char p_patronym[])
+void printTree(phonebook *node)
+{
+    if (node == NULL)
+        return;
+    printTree(node->left);
+    printf("%d\t%s\t\t%s\t\t%s\t\t%s\t\t%s\n",
+           node->key,
+           node->person.surname,
+           node->person.name,
+           node->person.patronym ? node->person.patronym : "-",
+           node->person.phone[0] ? node->person.phone : "-",
+           node->person.job[0] ? node->person.job : "-");
+    printTree(node->right);
+}
+phonebook *findNode(phonebook *node, int key)
+{
+    phonebook *result = NULL;
+    if (node == NULL)
+    {
+        return NULL;
+    }
+    if (node->key == key)
+    {
+        return node;
+    }
+    result = findNode(node->left, key);
+    if (result != NULL)
+    {
+        return result;
+    }
+    result = findNode(node->right, key);
+    if (result != NULL)
+    {
+        return result;
+    }
+    return result;
+}
+/*
+int treeDel(phonebook **node)
+{
+    if ((*node)->left == NULL && (*node)->right == NULL)
+    {
+        free((*node)->person.name);
+        free((*node)->person.surname);
+        free((*node)->person.patronym);
+        free()
+    }
+
+    return 0;
+}
+*/
+
+// Создание персоны
+int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook **node)
 {
     if (currentPosition >= MAX_CONTACTS) {
         return -1; // Переполнение
@@ -56,46 +110,90 @@ int createPerson(char p_name[], char p_surname[], char p_patronym[])
     strcpy(newPerson.job, "");
     strcpy(newPerson.phone, "");
 
-    persons[currentPosition] = newPerson;
+    insTree(node, currentPosition, newPerson);
+    //persons[currentPosition] = newPerson;
     currentPosition++;
 
     return 0;
 }
-int deletePerson(int personID)
+int deletePerson(int personID, phonebook **node)
 {
     if (personID < 0 || personID >= currentPosition) {
         return -3; // Неверный ID
     }
 
-    free(persons[personID].name);
-    free(persons[personID].surname);
-    free(persons[personID].patronym);
+    phonebook *t, *up;
+    if (*node == NULL)
+        return 0; // нет такого значения в дереве
 
-    for (int i = personID; i < currentPosition - 1; i++)
+    if ((*node)->key == personID)
     {
+        //если значение в листе, то удаляем лист
+        if(((*node)->left == NULL) && ((*node)->right == NULL))
+        {
+            free((*node)->person.name);
+            free((*node)->person.surname);
+            free((*node)->person.patronym);
+            *node=NULL;
+            return 1;
+        }
+        //Если только правый потомок
+        if((*node)->left == NULL)
+        {
+            t = *node;
+            *node = (*node)->right;
+            free(t->person.name);
+            free(t->person.surname);
+            free(t->person.patronym);
+            free(t);
+            return 1;
+        }
+        //Если только левый потомок
+        if ((*node)->right == NULL)
+        {
+            t = *node;
+            *node = (*node)->left;
+            free(t->person.name);
+            free(t->person.surname);
+            free(t->person.patronym);
+            free(t);
+            return 1;
+        }
+        //Если и левый и правый потомки есть
+        up=*node;
+        t=(*node)->left;
+        while (t->right !=NULL)
+        {
+            up=t;
+            t=t->right;
+        }
+        (*node)->key = t->key;
+        (*node)->person = t->person;
         
-        persons[i].name = copyString(persons[i + 1].name);
-        persons[i].surname = copyString(persons[i + 1].surname);
-        persons[i].patronym = copyString(persons[i + 1].patronym);
-        strcpy(persons[i].phone, persons[i + 1].phone);
-        strcpy(persons[i].job, persons[i + 1].job);
+        if (up!=(*node))
+        {
+            if(t->left != NULL) {up->right = t->left;}
+            else 
+            {
+                //up->right->person
+                up->right = NULL;
+            }
+        }
+        else (*node)->left = t->left;
+        free(t->person.name);
+        free(t->person.surname);
+        free(t->person.patronym);
+        free(t);
+        return 1;
     }
-    
-    if (currentPosition > 0) {
 
-        //free(persons[currentPosition - 1].name);
-        //free(persons[currentPosition - 1].surname);
-        //free(persons[currentPosition - 1].patronym);
-        persons[currentPosition - 1].name = NULL;
-        persons[currentPosition - 1].surname = NULL;
-        persons[currentPosition - 1].patronym = NULL;
-        persons[currentPosition - 1].phone[0] = '\0';
-        persons[currentPosition - 1].job[0] = '\0';
+    if ((*node)->key < personID)
+    {
+        return deletePerson(personID, &(*node)->right);
     }
-    currentPosition--;
-    return 0;
+    return deletePerson(personID, &(*node)->left);
 }
-int editPerson(int personID, char format [], ...)
+int editPerson(int personID, phonebook *node, char format[], ...)
 {
    
     if (personID < 0 || personID >= currentPosition) {
@@ -105,7 +203,9 @@ int editPerson(int personID, char format [], ...)
     va_list args;
     
     va_start(args, format);
-    
+
+    phonebook *prs= findNode(node, personID);
+
     for (int i = 0; format[i] != '\0'; i++)
     {
         
@@ -117,8 +217,8 @@ int editPerson(int personID, char format [], ...)
                 {
                     const char* new_name = va_arg(args, const char*);
                     if (new_name && strlen(new_name) > 0) {
-                        free(persons[personID].name);
-                        persons[personID].name = copyString(new_name);
+                        free(prs->person.name);
+                        prs->person.name = copyString(new_name);
                     }
                 }
                 break;
@@ -126,8 +226,8 @@ int editPerson(int personID, char format [], ...)
                 {
                     const char* new_surname = va_arg(args, const char*);
                     if (new_surname && strlen(new_surname) > 0) {
-                        free(persons[personID].surname);
-                        persons[personID].surname = copyString(new_surname);
+                        free(prs->person.surname);
+                        prs->person.surname = copyString(new_surname);
                     }
                 }
                 break;
@@ -135,8 +235,8 @@ int editPerson(int personID, char format [], ...)
                 {
                     const char* new_patronym = va_arg(args, const char*);
                     if (new_patronym && strlen(new_patronym) > 0) {
-                        free(persons[personID].patronym);
-                        persons[personID].patronym = copyString(new_patronym);
+                        free(prs->person.patronym);
+                        prs->person.patronym = copyString(new_patronym);
                     }
                 }
                 break;
@@ -144,7 +244,7 @@ int editPerson(int personID, char format [], ...)
                 {
                     const char* new_job = va_arg(args, const char*);
                     if (new_job && strlen(new_job) > 0) {
-                        strncpy(persons[personID].job, new_job, JOB_LEN);
+                        strncpy(prs->person.job, new_job, JOB_LEN);
                     }
                 }
                 break;
@@ -152,8 +252,8 @@ int editPerson(int personID, char format [], ...)
                 {
                     const char* new_phone = va_arg(args, const char*);
                     if (new_phone && strlen(new_phone) > 0) {
-                        strncpy(persons[personID].phone, new_phone, PHONE_LEN - 1);
-                        persons[personID].phone[PHONE_LEN - 1] = '\0';
+                        strncpy(prs->person.phone, new_phone, PHONE_LEN - 1);
+                        prs->person.phone[PHONE_LEN - 1] = '\0';
                     }
                 }
                 break;
@@ -172,7 +272,7 @@ int editPerson(int personID, char format [], ...)
 
 //Интерфейс
 
-int createPerson_ui()
+int createPerson_ui(phonebook **book)
 {
     //const int buffSize=100;
     char tmpName[NAME_LEN], tmpSurname[NAME_LEN], tmpPatronym[NAME_LEN];
@@ -186,9 +286,8 @@ int createPerson_ui()
     
     printf("Enter contact patronym: ");
     scanf("%s",tmpPatronym);
-    
 
-    int result = createPerson(tmpName, tmpSurname, tmpPatronym);
+    int result = createPerson(tmpName, tmpSurname, tmpPatronym, book);
 
     switch (result)
     {
@@ -205,7 +304,7 @@ int createPerson_ui()
 
     return result;
 }
-int deletePerson_ui()
+int deletePerson_ui(phonebook **book)
 {
     if (currentPosition == 0) {
         printf("\nPhonebook is empty!\n");
@@ -216,8 +315,8 @@ int deletePerson_ui()
     printf("\nEnter contact ID to delete: ");
     scanf("%d", &personID);
 
-    int result = deletePerson(personID);
-    
+    int result = deletePerson(personID, book);
+
     switch (result)
     {
     case 0:
@@ -233,7 +332,7 @@ int deletePerson_ui()
 
     return result;
 }
-int editPerson_ui()
+int editPerson_ui(phonebook *book)
 {
     
     if (currentPosition == 0) {
@@ -329,19 +428,19 @@ int editPerson_ui()
     switch (arg_count)
     {
     case 1:
-        result = editPerson(personID, format, arguments[0]);
+        result = editPerson(personID, book, format, arguments[0]);
         break;
     case 2:
-        result = editPerson(personID, format, arguments[0], arguments[1]);
+        result = editPerson(personID, book, format, arguments[0], arguments[1]);
         break;
     case 3:
-        result = editPerson(personID, format, arguments[0], arguments[1], arguments[2]);
+        result = editPerson(personID, book, format, arguments[0], arguments[1], arguments[2]);
         break;
     case 4:
-        result = editPerson(personID, format, arguments[0], arguments[1], arguments[2], arguments[3]);
+        result = editPerson(personID, book, format, arguments[0], arguments[1], arguments[2], arguments[3]);
         break;
     case 5:
-        result = editPerson(personID, format, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
+        result = editPerson(personID, book, format, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
         break;
     default:
         break;
@@ -362,7 +461,7 @@ int editPerson_ui()
     return result;
 }
 
-void showAllPersons_ui()
+void showAllPersons_ui(phonebook *book)
 {
     if (currentPosition == 0) {
         printf("\nPhonebook is empty!\n");
@@ -373,13 +472,5 @@ void showAllPersons_ui()
     printf("ID\tSurname\t\tName\t\tPatronym\tPhone\t\tJob\n");
     printf("------------------------------------------------------------------------\n");
 
-    for (int i = 0; i < currentPosition; i++) {
-        printf("%d\t%s\t\t%s\t\t%s\t\t%s\t\t%s\n",
-            i,
-            persons[i].surname,
-            persons[i].name,
-            persons[i].patronym ? persons[i].patronym : "-",
-            persons[i].phone[0] ? persons[i].phone : "-",
-            persons[i].job[0] ? persons[i].job : "-");
-    }
+    printTree(book);
 }
