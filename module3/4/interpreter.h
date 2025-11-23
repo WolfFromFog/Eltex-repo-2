@@ -2,7 +2,7 @@
 
 #define MAX_INPUT 500
 #define MAX_ARGS 10
-#define MAX_PIPE 10
+#define MAX_PIPES 10
 
 //Структура, хранящая свойства для процесса
 

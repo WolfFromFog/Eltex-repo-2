@@ -1,15 +1,10 @@
-all: interpreter functions
-
 interpreter: interpreter.h interpreter.c main.c
 	gcc -Wall interpreter.c main.c -o interpreter
 
-functions:
-	gcc -Wall sum.c -o sum
-
 clean:
-	rm -f interpreter sum
+	rm -f interpreter 
 	
-run: interpreter functions
-	./interpreter ./functions
+run: interpreter
+	./interpreter 
 
-.PHONY: clean run functions
+.PHONY: clean run 

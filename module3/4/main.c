@@ -7,7 +7,7 @@
 
 int main()
 {
-    command_s commands[MAX_PIPE];
+    command_s commands[MAX_PIPES];
     char input[MAX_INPUT];
     // char* argv[MAX_ARGS];
 
@@ -44,7 +44,7 @@ int main()
             continue;
         }
 
-        execute_pipline(commands, 10);
+        execute_pipline(commands, argc);
     }
 
     printf("Конец работы интерпритатора.\n");
