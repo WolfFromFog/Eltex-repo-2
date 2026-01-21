@@ -7,11 +7,11 @@ int main()
 
     int choice;
     int result = 0;
-    
 
     printf("\n=== СПИСОК КОНТАКТОВ ===\n");
-    
-    do {
+
+    do
+    {
         printf("\n--- МЕНЮ ---\n");
         printf("1. Показать все контакты\n");
         printf("2. Добавить контакт\n");
@@ -22,41 +22,41 @@ int main()
         printf("0. Выйти\n");
         printf("Выбирите действие: ");
 
-
         scanf("%d", &choice);
 
-        switch(choice) {
-            case 1:
-                printf("\nОтображаем контакты...\n");
-                showAllPersons_ui(root);
-                verifyAllIDs(root);
-                break;
-            case 2:
-                printf("\nДобавляем контакты...\n");
-                result = createPerson_ui(&root);
-                break;
-            case 3:
-                printf("\nИзменяем контакты...\n");
-                result = editPerson_ui(root);
-                break;
-            case 4:
-                printf("\nУдаляем контакты...\n");
-                result = deletePerson_ui(&root);
-                break;
-            case 5:
-                printf("\nПоказываем древо...\n");
-                printTreeAsTree(root, 0);
-                break;
-            case 6:
-                printf("\nПеребалансировка дерева.\n");
-                balanceTree_ui(&root);
-                printf("Перебалнсировка завершена!\n");
-                break;
-            case 0:
-                printf("\nПрограмма закрывается...\n");
-                break;
-            default:
-                printf("\nНевреный выбор, попробуйте снова.\n");
+        switch (choice)
+        {
+        case 1:
+            printf("\nОтображаем контакты...\n");
+            showAllPersons_ui(root);
+            // verifyAllIDs(root);
+            break;
+        case 2:
+            printf("\nДобавляем контакты...\n");
+            result = createPerson_ui(&root);
+            break;
+        case 3:
+            printf("\nИзменяем контакты...\n");
+            result = editPerson_ui(root);
+            break;
+        case 4:
+            printf("\nУдаляем контакты...\n");
+            result = deletePerson_ui(&root);
+            break;
+        case 5:
+            printf("\nПоказываем древо...\n");
+            // printTreeAsTree(root, 0);
+            break;
+        case 6:
+            printf("\nПеребалансировка дерева.\n");
+            // balanceTree_ui(&root);
+            printf("Перебалнсировка завершена!\n");
+            break;
+        case 0:
+            printf("\nПрограмма закрывается...\n");
+            break;
+        default:
+            printf("\nНевреный выбор, попробуйте снова.\n");
         }
         switch (result)
         {
@@ -73,7 +73,7 @@ int main()
             printf("\nWarning: Phonebook is empty\n");
             break;
         default:
-            
+
             break;
         }
     } while (choice != 0);
@@ -82,6 +82,6 @@ int main()
     {
         deletePerson(i, &root);
     }
-    
+
     return 0;
 }
