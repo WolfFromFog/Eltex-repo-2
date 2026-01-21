@@ -26,6 +26,7 @@ typedef struct phonebook
     int key;
     Person person;
     struct phonebook *left, *right;
+    int height;
 
 } phonebook;
 
@@ -41,9 +42,19 @@ phonebook *findNode(phonebook *node, int key);
 //int treeDel(phonebook **node);
 void printTreeAsTree(phonebook *node, int level);
 
-    // Логика
+// Функции балансировки древа
+int getHeight(phonebook *node);
+int getBalance(phonebook *node);
+phonebook *rotateRight(phonebook *y);
+phonebook *rotateLeft(phonebook *x);
+phonebook *balanceTree(phonebook *node);
+void rebuildBalancedTree(phonebook **root);
+void fixheight(phonebook *node);
+phonebook *findMin(phonebook *node);
 
-int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook **node);
+// Логика
+
+ int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook **node);
 int deletePerson(int personID, phonebook **node);
 int editPerson(int personID, phonebook *node, char format[], ...);
 
@@ -53,5 +64,9 @@ int createPerson_ui(phonebook **book);
 int deletePerson_ui(phonebook **book);
 int editPerson_ui(phonebook *book);
 void showAllPersons_ui(phonebook *book);
+void balanceTree_ui(phonebook **book);
+void verifyTree(phonebook *node, int *count);
+
+void verifyAllIDs(phonebook *node);
 
 #endif

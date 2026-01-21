@@ -16,6 +16,18 @@ char* copyString(const char* source) {
     strcpy(dest, source);
     return dest;
 }
+
+void fixheight(phonebook *node)
+{
+    if (node == NULL)
+    {
+        return;
+    }
+    
+    int hl = getHeight(node->left);
+    int hr = getHeight(node->right);
+    node->height = (hl > hr ? hl : hr) + 1;
+}
 //Вставка в дерево
 void insTree(phonebook **node, int key, Person person)
 {
@@ -25,6 +37,7 @@ void insTree(phonebook **node, int key, Person person)
         (*node)->left = (*node)->right = NULL;
         (*node)->key = key;
         (*node)->person = person;
+        (*node)->height = 1;
         return;
     }
     if ((*node)->key > key)
@@ -35,9 +48,13 @@ void insTree(phonebook **node, int key, Person person)
     {
         insTree(&(*node)->right, key, person);
     }
+
+    fixheight(*node);
+
+    *node = balanceTree(*node);
     
 }
-
+//Вывод содержимого древа
 void printTree(phonebook *node)
 {
     if (node == NULL)
@@ -52,6 +69,7 @@ void printTree(phonebook *node)
            node->person.job[0] ? node->person.job : "-");
     printTree(node->right);
 }
+//Поиск узла
 phonebook *findNode(phonebook *node, int key)
 {
     phonebook *result = NULL;
@@ -75,32 +93,134 @@ phonebook *findNode(phonebook *node, int key)
     }
     return result;
 }
-void printTreeAsTree(phonebook *node, int level)
+
+//Получение высоты
+int getHeight(phonebook *node)
 {
-    if (node!=NULL)
+    return node != NULL ? node->height : 0 ;
+}
+//Разница высот между левым и правыми потомками
+int getBalance(phonebook *node)
+{
+    if(node==NULL)
     {
-        printTreeAsTree(node->left, level + 1);
-        for (int i = 0; i < level; i++)
-            printf("   ");
-        printf("%d \n", node->key);
-        printTreeAsTree(node->right, level + 1);
+        return 0;
+    }
+    return getHeight(node->left)-getHeight(node->right);
+}
+//Правый поворот
+phonebook *rotateRight(phonebook *y)
+{
+    phonebook *x = y->left;
+    phonebook *T2 = x->right;
+
+    x->right = y;
+    y->left = T2;
+
+    fixheight(y);
+    fixheight(x);
+
+    return x;
+}
+//Левый поворот
+phonebook *rotateLeft(phonebook *x)
+{
+    phonebook *y = x->right;
+    phonebook *T2 = y->left;
+
+    x->right = y;
+    y->left = T2;
+
+    fixheight(x);
+    fixheight(y);
+
+    return y;
+}
+//Балансировка узла
+phonebook *balanceTree(phonebook *node)
+{
+    if(node == NULL)
+    {
+        return NULL;
+    }
+    fixheight(node);
+
+    int balance = getBalance(node);
+
+    
+    if (balance > 1 && getBalance(node->left) >=0 )
+    {
+        return rotateRight(node);
     }
     
-}
-/*
-int treeDel(phonebook **node)
-{
-    if ((*node)->left == NULL && (*node)->right == NULL)
+    if (balance < -1 && getBalance(node->right) <= 0)
     {
-        free((*node)->person.name);
-        free((*node)->person.surname);
-        free((*node)->person.patronym);
-        free()
+        return rotateLeft(node);
+    }
+    
+    if (balance > 1 && getBalance(node->left) < 0)
+    {
+        node->left = rotateLeft(node->left);
+        return rotateRight(node);
     }
 
-    return 0;
+    if (balance < -1 && getBalance(node->right) > 0)
+    {
+        node->right = rotateRight(node->right);
+        return rotateLeft(node);
+    }
+    return node;
 }
-*/
+//Сбор узлов в масив, чтоб перестроить
+void storeNodesInOrder(phonebook *node, phonebook **nodes, int *index)
+{
+    if (node == NULL)
+        return;
+
+    storeNodesInOrder(node->left, nodes, index);
+    nodes[(*index)++] = node;
+    storeNodesInOrder(node->right, nodes, index);
+}
+//Построение древа из массива
+phonebook *buildBalancedTree(phonebook **nodes, int start, int end)
+{
+    if (start > end)
+        return NULL;
+
+    int mid = (start + end) / 2;
+    phonebook *root = nodes[mid];
+
+    root->left = buildBalancedTree(nodes, start, mid - 1);
+    root->right = buildBalancedTree(nodes, mid + 1, end);
+
+    fixheight(root);
+
+    return root;
+}
+//Перестройка дерева
+void rebuildBalancedTree(phonebook **root)
+{
+    if (*root == NULL)
+        return;
+
+    phonebook **nodes = (phonebook **)malloc(currentPosition * sizeof(phonebook *));
+    int index = 0;
+
+    
+    storeNodesInOrder(*root, nodes, &index);
+
+    
+    *root = buildBalancedTree(nodes, 0, index - 1);
+
+    free(nodes);
+}
+
+phonebook *findMin(phonebook *node)
+{
+    while (node->left != NULL)
+        node = node->left;
+    return node;
+}
 
 // Создание персоны
 int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook **node)
@@ -134,76 +254,82 @@ int deletePerson(int personID, phonebook **node)
         return -3; // Неверный ID
     }
 
-    phonebook *t, *up;
+    
     if (*node == NULL)
         return 0; // нет такого значения в дереве
 
-    if ((*node)->key == personID)
+    if (personID < (*node)->key)
     {
-        //если значение в листе, то удаляем лист
-        if(((*node)->left == NULL) && ((*node)->right == NULL))
+        int result = deletePerson(personID, &(*node)->left);
+        if (result)
         {
-            free((*node)->person.name);
-            free((*node)->person.surname);
-            free((*node)->person.patronym);
-            *node=NULL;
-            return 1;
+            fixheight(*node);
+            *node = balanceTree(*node);
         }
-        //Если только правый потомок
-        if((*node)->left == NULL)
+        return result;
+    }
+    else if (personID > (*node)->key)
+    {
+        int result = deletePerson(personID, &(*node)->right);
+        if (result)
         {
-            t = *node;
+            fixheight(*node);
+            *node = balanceTree(*node);
+        }
+        return result;
+    }
+    else
+    {
+        phonebook *temp = *node;
+        int result = 1;
+        //Есть только правый
+        if(((*node)->left == NULL))
+        {
             *node = (*node)->right;
-            free(t->person.name);
-            free(t->person.surname);
-            free(t->person.patronym);
-            free(t);
-            return 1;
+            free(temp->person.name);
+            free(temp->person.surname);
+            free(temp->person.patronym);
+            free(temp);
         }
         //Если только левый потомок
-        if ((*node)->right == NULL)
+        else if((*node)->right == NULL)
         {
-            t = *node;
             *node = (*node)->left;
-            free(t->person.name);
-            free(t->person.surname);
-            free(t->person.patronym);
-            free(t);
-            return 1;
+            free(temp->person.name);
+            free(temp->person.surname);
+            free(temp->person.patronym);
+            free(temp);
         }
-        //Если и левый и правый потомки есть
-        up=*node;
-        t=(*node)->left;
-        while (t->right !=NULL)
+        //Если оба
+        else 
         {
-            up=t;
-            t=t->right;
-        }
-        (*node)->key = t->key;
-        (*node)->person = t->person;
-        
-        if (up!=(*node))
-        {
-            if(t->left != NULL) {up->right = t->left;}
-            else 
-            {
-                //up->right->person
-                up->right = NULL;
-            }
-        }
-        else (*node)->left = t->left;
-        free(t->person.name);
-        free(t->person.surname);
-        free(t->person.patronym);
-        free(t);
-        return 1;
-    }
+            phonebook *minNode = findMin((*node)->right);
 
-    if ((*node)->key < personID)
-    {
-        return deletePerson(personID, &(*node)->right);
+            char *old_name = (*node)->person.name;
+            char *old_surname = (*node)->person.surname;
+            char *old_patronym = (*node)->person.patronym;
+
+            //(*node)->key = minNode->key;
+            (*node)->person.name = copyString(minNode->person.name);
+            (*node)->person.surname = copyString(minNode->person.surname);
+            (*node)->person.patronym = copyString(minNode->person.patronym);
+            strcpy((*node)->person.phone, minNode->person.phone);
+            strcpy((*node)->person.job, minNode->person.job);
+
+            free(old_name);
+            free(old_surname);
+            free(old_patronym);
+
+            deletePerson(minNode->key, &(*node)->right);
+        }
+        if (*node != NULL)
+        {
+            fixheight(*node);
+            *node = balanceTree(*node);
+        }
+        return result;
     }
-    return deletePerson(personID, &(*node)->left);
+    
 }
 int editPerson(int personID, phonebook *node, char format[], ...)
 {
@@ -480,9 +606,96 @@ void showAllPersons_ui(phonebook *book)
         return;
     }
 
+    // Проверка целостности дерева
+    int actualCount = 0;
+    verifyTree(book, &actualCount);
+
+    printf("\n=== ALL CONTACTS (currentPosition: %d, actual in tree: %d) ===\n",
+           currentPosition, actualCount);
+
+    if (actualCount != currentPosition)
+    {
+        printf("WARNING: Tree integrity issue! Some contacts are missing from tree.\n");
+    }
+    
     printf("\n=== ALL CONTACTS (%d) ===\n", currentPosition);
     printf("ID\tSurname\t\tName\t\tPatronym\tPhone\t\tJob\n");
     printf("------------------------------------------------------------------------\n");
 
     printTree(book);
+}
+
+// Вывод древа в виде древа
+void printTreeAsTree(phonebook *node, int level)
+{
+    if (node != NULL)
+    {
+        printTreeAsTree(node->right, level + 1);
+        for (int i = 0; i < level; i++)
+            printf("   ");
+        printf("%d", node->key);
+        printTreeAsTree(node->left, level + 1);
+        printf("\n");
+    }
+   
+}
+    
+
+void balanceTree_ui(phonebook **book)
+{
+    if (*book == NULL)
+    {
+        printf("\nСписок пуст!\n");
+        return;
+    }
+
+    printf("\n=== AVL БАЛАНСИРОВКА ===\n");
+
+    // Проверка перед балансировкой
+    printf("Дерево до операций:\n");
+    printTreeAsTree(*book, 0);
+    verifyAllIDs(*book);
+
+    printf("\nДерево автоматически балансируется при каждой операции\n");
+    printf("Текущий баланс-фактор корня: %d\n", getBalance(*book));
+
+    // Покажем также таблицу контактов для проверки
+    printf("\nВсе контакты:\n");
+    showAllPersons_ui(*book);
+}
+
+void verifyTree(phonebook *node, int *count)
+{
+    if (node == NULL)
+        return;
+
+    (*count)++;
+    verifyTree(node->left, count);
+    verifyTree(node->right, count);
+}
+
+// Функция для проверки, что все ID от 0 до currentPosition-1 присутствуют в дереве
+void verifyAllIDs(phonebook *node)
+{
+    printf("Проверка целостности ID в дереве:\n");
+    int missing_count = 0;
+
+    for (int i = 0; i < currentPosition; i++)
+    {
+        phonebook *found = findNode(node, i);
+        if (found == NULL)
+        {
+            printf("  ОШИБКА: ID %d отсутствует в дереве!\n", i);
+            missing_count++;
+        }
+    }
+
+    if (missing_count == 0)
+    {
+        printf("  Все ID присутствуют в дереве ✓\n");
+    }
+    else
+    {
+        printf("  Найдено отсутствующих ID: %d\n", missing_count);
+    }
 }

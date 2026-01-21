@@ -9,47 +9,54 @@ int main()
     int result = 0;
     
 
-    printf("\n=== PHONE BOOK ===\n");
+    printf("\n=== СПИСОК КОНТАКТОВ ===\n");
     
     do {
-        printf("\n--- MAIN MENU ---\n");
-        printf("1. Show all contacts\n");
-        printf("2. Add contact\n");
-        printf("3. Edit contact\n");
-        printf("4. Delete contact\n");
-        printf("5. Show tree\n");
-        printf("0. Exit\n");
-        printf("Choose action: ");
+        printf("\n--- МЕНЮ ---\n");
+        printf("1. Показать все контакты\n");
+        printf("2. Добавить контакт\n");
+        printf("3. Изменить контакт\n");
+        printf("4. Удалить контакт\n");
+        printf("5. Отобразить древо\n");
+        printf("6. Отбалансировать древо\n");
+        printf("0. Выйти\n");
+        printf("Выбирите действие: ");
 
 
         scanf("%d", &choice);
 
         switch(choice) {
             case 1:
-                printf("\nShowing contacts...\n");
+                printf("\nОтображаем контакты...\n");
                 showAllPersons_ui(root);
+                verifyAllIDs(root);
                 break;
             case 2:
-                printf("\nAdding contact...\n");
+                printf("\nДобавляем контакты...\n");
                 result = createPerson_ui(&root);
                 break;
             case 3:
-                printf("\nEditing contact...\n");
+                printf("\nИзменяем контакты...\n");
                 result = editPerson_ui(root);
                 break;
             case 4:
-                printf("\nDeleting contact...\n");
+                printf("\nУдаляем контакты...\n");
                 result = deletePerson_ui(&root);
                 break;
             case 5:
-                printf("\nShowing tree...\n");
+                printf("\nПоказываем древо...\n");
                 printTreeAsTree(root, 0);
                 break;
+            case 6:
+                printf("\nПеребалансировка дерева.\n");
+                balanceTree_ui(&root);
+                printf("Перебалнсировка завершена!\n");
+                break;
             case 0:
-                printf("\nExiting programm...\n");
+                printf("\nПрограмма закрывается...\n");
                 break;
             default:
-                printf("\nWrong choise! Try again.\n");
+                printf("\nНевреный выбор, попробуйте снова.\n");
         }
         switch (result)
         {
