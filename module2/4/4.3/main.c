@@ -45,7 +45,7 @@ int main()
             break;
         case 5:
             printf("\nПоказываем древо...\n");
-            // printTreeAsTree(root, 0);
+            printTreeAsTree(root, 0);
             break;
         case 6:
             printf("\nПеребалансировка дерева.\n");
@@ -78,9 +78,11 @@ int main()
         }
     } while (choice != 0);
 
-    for (int i = 0; i < currentPosition; i++)
+    int delres = deleteAll(&root);
+
+    if (delres == 0)
     {
-        deletePerson(i, &root);
+        printf("Очистка завершена. Закрытие программы...\n");
     }
 
     return 0;

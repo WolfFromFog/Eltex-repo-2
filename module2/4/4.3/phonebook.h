@@ -38,7 +38,7 @@ char *copyString(const char *source);
 // void printTree(phonebook *node);
 /// phonebook *findNode(phonebook *node, int key);
 // int treeDel(phonebook **node);
-// void printTreeAsTree(phonebook *node, int level);
+void printTreeAsTree(phonebook *node, int level);
 
 // Функции балансировки древа
 /*
@@ -57,6 +57,7 @@ phonebook *findMin(phonebook *node);
 int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook **node);
 int deletePerson(int personID, phonebook **node);
 int editPerson(int personID, phonebook *node, char format[], ...);
+int deleteAll(phonebook **node);
 
 // Интерфейс
 

@@ -298,8 +298,8 @@ int deletePerson(int personID, phonebook **node)
             free((*node)->person.name);
             free((*node)->person.surname);
             free((*node)->person.patronym);
-            free(node);
-
+            free(*node);
+            printf("Удаление пользователя %d завершено.", personID);
             return 0;
         }
         else
@@ -519,7 +519,38 @@ int editPerson(int personID, phonebook *node, char format[], ...)
 
     return 0;
 }
+int deleteAll(phonebook **node)
+{
+    if (*node == NULL)
+    {
+        return -1;
+    }
 
+    int resultL, resultR;
+
+    if ((*node)->left != NULL)
+    {
+        resultL = deleteAll(&(*node)->left);
+        if (resultL == -1)
+            printf("Ошбика удаления пользователя %d завершено. Он уже удалён\n", (*node)->person.perID);
+    }
+
+    if ((*node)->right != NULL)
+    {
+        resultR = deleteAll(&(*node)->right);
+        if (resultR == -1)
+            printf("Ошбика удаления пользователя %d завершено. Он уже удалён\n", (*node)->person.perID);
+    }
+
+    int persID = (*node)->person.perID;
+    free((*node)->person.name);
+    free((*node)->person.surname);
+    free((*node)->person.patronym);
+    free(*node);
+    printf("Удаление пользователя %d завершено.\n", persID);
+
+    return 0;
+}
 // Интерфейс
 
 int createPerson_ui(phonebook **book)
@@ -744,8 +775,6 @@ void showAllPersons_ui(phonebook *book)
     printTree(book);
 }
 
-/*
-
 // Вывод древа в виде древа
 void printTreeAsTree(phonebook *node, int level)
 {
@@ -754,14 +783,13 @@ void printTreeAsTree(phonebook *node, int level)
         printTreeAsTree(node->right, level + 1);
         for (int i = 0; i < level; i++)
             printf("   ");
-        printf("%d", node->key);
+        printf("%d", node->person.perID);
         printTreeAsTree(node->left, level + 1);
         printf("\n");
     }
-
 }
 
-
+/*
 void balanceTree_ui(phonebook **book)
 {
     if (*book == NULL)
