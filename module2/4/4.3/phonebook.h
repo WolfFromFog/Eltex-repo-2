@@ -34,23 +34,11 @@ extern phonebook *root;
 char *copyString(const char *source);
 
 // Операции с деревом
-// void insTree(phonebook **node, int key, Person person);
-// void printTree(phonebook *node);
-/// phonebook *findNode(phonebook *node, int key);
-// int treeDel(phonebook **node);
 void printTreeAsTree(phonebook *node, int level);
 
 // Функции балансировки древа
-/*
-int getHeight(phonebook *node);
-int getBalance(phonebook *node);
-phonebook *rotateRight(phonebook *y);
-phonebook *rotateLeft(phonebook *x);
-phonebook *balanceTree(phonebook *node);
-void rebuildBalancedTree(phonebook **root);
-void fixheight(phonebook *node);
-phonebook *findMin(phonebook *node);
-*/
+
+void storeInOrder(phonebook *root, phonebook nodes);
 
 // Логика
 
@@ -65,9 +53,5 @@ int createPerson_ui(phonebook **book);
 int deletePerson_ui(phonebook **book);
 int editPerson_ui(phonebook *book);
 void showAllPersons_ui(phonebook *book);
-// void balanceTree_ui(phonebook **book);
-// void verifyTree(phonebook *node, int *count);
-
-// void verifyAllIDs(phonebook *node);
 
 #endif
