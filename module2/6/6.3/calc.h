@@ -1,32 +1,18 @@
 #ifndef CALC_H
 #define CALC_H
 
-#define FORMAT_LEN 5
+#define MAX_PLUGINS 20
+#define PLUGIN_DIR "./plugins"
 
-//Массив указателей на функции
+extern int plugin_count;
 
-typedef void (*operations)(double, double);
-
-//Переменная для хранения размера массива указателей на функции
-
-extern int f_array_size;
-
-//инициализация массива на основе формата
-
-operations* init_functions(const char* format);
-
-//Меню на основе массива
-
-void menu(const char* format);
-
-//Математические функции
-
-void c_sum(double a, double b);
-void c_sub(double a, double b);
-void c_mult(double a, double b);
-void c_div(double a, double b);
-
-
+// Р—Р°РіСЂСѓР·РєР° РІСЃРµС… РїР»Р°РіРёРЅРѕРІ
+void load_plugins(const char *dir_path);
+// Р’С‹РіСЂСѓР·РєР° РІСЃРµС… Р»Р°РіРёРЅРѕРІ
+void unload_plugins(void);
+// Р’С‹РїРѕР»РµРЅРµРЅРёРµ РѕРїРµСЂР°С†РёРё
+double execute_operation(const char *symbol, double a, double b);
+// РћС‚РѕР±СЂР°Р¶РµРЅРёРµ СЃРїРёСЃРєР° РѕРїРµСЂР°С†РёР№
+void print_operations(void);
 
 #endif // !CALC_H
-

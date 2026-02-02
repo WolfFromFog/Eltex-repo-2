@@ -1,27 +1,33 @@
-#include <stdio.h> 
+#include <stdio.h>
 #include "calc.h"
 
-int main() {
-	//int choise = 0;
-	char format[FORMAT_LEN];
+int main()
+{
 
-	printf("Avaible functions: \n");
-	printf("1. Summation \n");
-	printf("2. Subtraction \n");
-	printf("3. Multiplication \n");
-	printf("4. Division \n");
+	load_plugins(PLUGIN_DIR);
 
-	printf("Choose functions in format: 1234 or 134 or 1 for enable those functions.\n ");
-	scanf("%4s", &format);
-
-	
-	
-	/*for (int i = 0; i < f_array_size; i++)
+	if (plugin_count == 0)
 	{
-		func_array[i](2, 3);
-	}*/
+		printf("Плагины не обнаружены.\n");
+		return -1;
+	}
 
-	menu(format);
+	print_operations();
+	printf("\n");
 
+	double a, b;
+
+	char op[10];
+
+	printf("Введите выражение (например, 5 + 3): ");
+	while (scanf("%lf %s %lf", &a, op, &b) == 3)
+	{
+		double result = execute_operation(op, a, b);
+		printf("Результат: %lf %s %lf = %f\n\n", a, op, b, result);
+		printf("Введите выражение (или Ctrl+D для выхода): ");
+	}
+
+	// Выгружаем плагины
+	unload_plugins();
 	return 0;
 }

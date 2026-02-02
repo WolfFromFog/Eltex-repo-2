@@ -1,8 +1,30 @@
-calculator: main.c calc.c calc.h
-	gcc -Wall main.c calc.c -o calculator
-clean:
-	rm -f calculator
-run: calculator
-	./calculator
+CC = gcc
+CFLAGS = -fPIC -Wall -Wextra
+LDFLAGS = -ldl -export-dynamic
 
-.PHONY: clean run
+TARGET = calculator
+PLUGIN_DIR = plugins
+SOURCES = main.c calc.c
+HEADERS = calc.h
+OBJECTS = $(SOURCES:.c=.o)
+
+PLUGIN_SOURCES = $(wildcard $(PLUGIN_DIR)/*.c)
+PLUGIN_LIBS = $(PLUGIN_SOURCES:.c=.so)
+
+all: $(TARGET) plugins
+
+$(TARGET): $(OBJECTS) $(HEADERS)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+plugins: $(PLUGIN_LIBS)
+
+$(PLUGIN_DIR)/%.so: $(PLUGIN_DIR)/%.c plugin_interface.h
+	$(CC) $(CFLAGS) -shared -o $@ $<
+
+clean:
+	rm -f $(OBJECTS) $(TARGET) $(PLUGIN_DIR)/*.so
+
+run: all
+	./$(TARGET)
+
+.PHONY: all clean run plugins
