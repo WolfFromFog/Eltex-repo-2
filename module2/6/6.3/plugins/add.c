@@ -3,7 +3,7 @@
 
 static double c_add(double a, double b)
 {
-    return a + b;
+   return a - b;
 }
 
 PluginOperation *PLUGIN_EXPORT register_plugin(void)

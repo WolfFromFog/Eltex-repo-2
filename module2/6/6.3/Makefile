@@ -8,13 +8,13 @@ SOURCES = main.c calc.c
 HEADERS = calc.h
 OBJECTS = $(SOURCES:.c=.o)
 
-PLUGIN_SOURCES = $(wildcard $(PLUGIN_DIR)/*.c)
+PLUGIN_SOURCES = plugins/add.c plugins/div.c  #$(wildcard $(PLUGIN_DIR)/*.c)
 PLUGIN_LIBS = $(PLUGIN_SOURCES:.c=.so)
 
-all: $(TARGET) plugins
+all: plugins $(TARGET)
 
 $(TARGET): $(OBJECTS) $(HEADERS)
-	$(CC) -o $@ $^ $(LDFLAGS)
+	#$(CC) -o $@ $^ $(LDFLAGS)
 
 plugins: $(PLUGIN_LIBS)
 
