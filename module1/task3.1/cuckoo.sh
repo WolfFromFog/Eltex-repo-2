@@ -2,20 +2,35 @@
 
 LOG_FILE=cuckoo.log
 PID=$$
-FIFO_NAME=cuckoo.pid
-
-mkfifo /tmp/run/$FIFO_NAME 
-
-trap ' echo "$(date "+%d.%m.%Y %H:%M:%S") Shutdown!">> "$LOG_FILE"; exit ' SIGINT
-
-exec 3<> "/tmp/run/$FIFO_NAME"
+FIFO="/tmp/run/cuckoo.pid"
 
 
-echo "$(date '+%d.%m.%Y %H:%M:%S') Startup!">> "$LOG_FILE"
+cleanup() {
+    rm -f "$FIFO"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Удалён FIFO: $FIFO"
+    exit 0
+}
+ 
+trap cleanup SIGINT SIGTERM EXIT
+
+mkdir -p /tmp/run
+if [[ ! -p "$FIFO" ]]; then
+    mkfifo "$FIFO"
+    chmod 666 "$FIFO"
+fi
+
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$LOG_FILE"
+}
+
+exec 3<> "$FIFO"
+
+log_message "Startup!"
 
 while true; do
 
 	if read -u 3 line; then
+		echo "DEBUG: получил строку: $line"
 		if [[ "$line" =~ ^([^[]+)\[([0-9]+)\]:\ how\ much\ time\ do\ I\ have\?$ ]]; then
 			client_name="${BASH_REMATCH[1]}"
 			client_pid="${BASH_REMATCH[2]}"
@@ -27,4 +42,3 @@ while true; do
 	fi
 
 done
-

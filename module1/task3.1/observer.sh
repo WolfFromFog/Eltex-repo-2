@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 #Почему-то не работает без этого. Вроде из-за того, что cron запускает в другой директории или че-то типо того
 cd "/root/Eltex-repo-2_clone/module1/task3.1" || exit 1
 
@@ -7,6 +6,11 @@ cd "/root/Eltex-repo-2_clone/module1/task3.1" || exit 1
 CONFIG_FILE="observer.conf"
 LOG_FILE="observer.log"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+timelog() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S')"
+}
+
 
 #Функция проверки процесса
 check_process() {
@@ -33,8 +37,9 @@ check_process() {
 
 start_script() {
     local script_name="$1"
-    nohup "./$script_name" > /dev/null 2>&1 &
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Запущен скрипт: $script_name (PID: $!)" >> "$LOG_FILE"
+    nohup "./$script_name" #> /dev/null 2>&1 &
+    local pid=$!
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Запущен скрипт: $script_name (PID: $pid)" >> "$LOG_FILE"
 }
 
 #Основная логика
@@ -44,9 +49,9 @@ while IFS= read -r script_name; do
     
     # Проверка процесса
     if [ $(check_process "$script_name") -eq 0 ]; then
-        echo "[$TIMESTAMP] Скрипт $script_name не найден в процессах, запускаем..." >> "$LOG_FILE"
+        echo "[$(timelog)] Скрипт $script_name не найден в процессах, запускаем..." >> "$LOG_FILE"
         start_script "$script_name"
     else
-        echo "[$TIMESTAMP] Скрипт $script_name работает нормально" >> "$LOG_FILE"
+        echo "[$(timelog)] Скрипт $script_name работает нормально" >> "$LOG_FILE"
     fi
 done < "$CONFIG_FILE"
