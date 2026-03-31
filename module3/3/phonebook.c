@@ -8,27 +8,28 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-//Логика
+// Логика
 
 Person persons[MAX_CONTACTS];
 int currentPosition = 0;
 
-//Сразу выделить/перевыделить память под динамический charник и скопировать туда
-char* copyString(const char* source) {
-    char* dest = (char*)malloc(strlen(source) + 1);
+// Сразу выделить/перевыделить память под динамический charник и скопировать туда
+char *copyString(const char *source)
+{
+    char *dest = (char *)malloc(strlen(source) + 1);
     strcpy(dest, source);
     return dest;
 }
 
 int readLine(int filedescriptor, char *buff, int size)
 {
-    int i=0;
+    int i = 0;
     char c;
 
-    while(i<size-1)
+    while (i < size - 1)
     {
         ssize_t result = read(filedescriptor, &c, 1);
-        if (result <=0)
+        if (result <= 0)
         {
             break;
         }
@@ -36,20 +37,20 @@ int readLine(int filedescriptor, char *buff, int size)
         {
             break;
         }
-        buff[i++]=c;        
+        buff[i++] = c;
     }
-    buff[i]='\0';
+    buff[i] = '\0';
     return i;
 }
 
 int readFileToArr(int filedescriptor)
 {
-    
+
     lseek(filedescriptor, 0, SEEK_SET);
 
     currentPosition = 0;
 
-    if(isFileEmpty(filedescriptor))
+    if (isFileEmpty(filedescriptor))
     {
         return 1;
     }
@@ -77,13 +78,13 @@ int readFileToArr(int filedescriptor)
         int fieldIndex = 0;
         char *token = strtok(line, "|");
 
-        while(token!= NULL && fieldIndex < 5)
+        while (token != NULL && fieldIndex < 5)
         {
             switch (fieldIndex)
             {
             case 0:
-                strcpy(tempPerson.name,token);
-                tempPerson.name[NAME_LEN - 1]='\0';
+                strcpy(tempPerson.name, token);
+                tempPerson.name[NAME_LEN - 1] = '\0';
                 break;
             case 1:
                 strcpy(tempPerson.surname, token);
@@ -107,7 +108,6 @@ int readFileToArr(int filedescriptor)
         }
         persons[currentPosition++] = tempPerson;
     }
-    
 
     return 0;
 }
@@ -122,7 +122,6 @@ int writeArrToFile(int filedescriptor)
         return -1;
     }
 
-
     for (int i = 0; i < currentPosition; i++)
     {
         char line[512];
@@ -133,7 +132,7 @@ int writeArrToFile(int filedescriptor)
                            persons[i].phone,
                            persons[i].job);
 
-        if(len > 0)
+        if (len > 0)
         {
             ssize_t bWritten = write(temp_fd, line, len);
             if (bWritten != len)
@@ -143,7 +142,6 @@ int writeArrToFile(int filedescriptor)
                 return -1;
             }
         }
-        
     }
 
     fsync(temp_fd);
@@ -168,11 +166,13 @@ int isFileEmpty(int filedescriptor)
 
 int createPerson(char p_name[], char p_surname[], char p_patronym[])
 {
-    if (currentPosition >= MAX_CONTACTS) {
+    if (currentPosition >= MAX_CONTACTS)
+    {
         return -1; // Переполнение
     }
 
-    if (!p_name || !p_surname || !p_patronym || strlen(p_name) == 0 || strlen(p_surname) == 0 || strlen(p_patronym) == 0) {
+    if (!p_name || !p_surname || !p_patronym || strlen(p_name) == 0 || strlen(p_surname) == 0 || strlen(p_patronym) == 0)
+    {
         return -2; // Обязательные поля не заполнены
     }
 
@@ -191,131 +191,137 @@ int createPerson(char p_name[], char p_surname[], char p_patronym[])
 }
 int deletePerson(int personID)
 {
-    if (personID < 0 || personID >= currentPosition) {
+    if (personID < 0 || personID >= currentPosition)
+    {
         return -3; // Неверный ID
     }
 
     for (int i = personID; i < currentPosition - 1; i++)
     {
-        persons[i]=persons[i+1];
+        persons[i] = persons[i + 1];
     }
-    
-    if (currentPosition > 0) {
-        memset(&persons[currentPosition-1],0,sizeof(Person));
+
+    if (currentPosition > 0)
+    {
+        memset(&persons[currentPosition - 1], 0, sizeof(Person));
     }
     currentPosition--;
     return 0;
 }
-int editPerson(int personID, char format [], ...)
+int editPerson(int personID, char format[], ...)
 {
-   
-    if (personID < 0 || personID >= currentPosition) {
+
+    if (personID < 0 || personID >= currentPosition)
+    {
         return -3; // Неверный ID
     }
 
     va_list args;
-    
+
     va_start(args, format);
-    
+
     for (int i = 0; format[i] != '\0'; i++)
     {
-        
-        if (format[i] == '%') {
+
+        if (format[i] == '%')
+        {
             i++;
             switch (format[i])
             {
-            case 'n': //Изменение имени
+            case 'n': // Изменение имени
+            {
+                const char *new_name = va_arg(args, const char *);
+                if (new_name && strlen(new_name) > 0)
                 {
-                    const char* new_name = va_arg(args, const char*);
-                    if (new_name && strlen(new_name) > 0) {
-                        strncpy(persons[personID].name, new_name, NAME_LEN);
-                    }
+                    strncpy(persons[personID].name, new_name, NAME_LEN);
                 }
-                break;
-            case 's'://Изменение фамилии
+            }
+            break;
+            case 's': // Изменение фамилии
+            {
+                const char *new_surname = va_arg(args, const char *);
+                if (new_surname && strlen(new_surname) > 0)
                 {
-                    const char* new_surname = va_arg(args, const char*);
-                    if (new_surname && strlen(new_surname) > 0) {
-                        strncpy(persons[personID].surname, new_surname, NAME_LEN);
-                    }
+                    strncpy(persons[personID].surname, new_surname, NAME_LEN);
                 }
-                break;
-            case 'p': //Изменение отчества
+            }
+            break;
+            case 'p': // Изменение отчества
+            {
+                const char *new_patronym = va_arg(args, const char *);
+                if (new_patronym && strlen(new_patronym) > 0)
                 {
-                    const char* new_patronym = va_arg(args, const char*);
-                    if (new_patronym && strlen(new_patronym) > 0) {
-                        strncpy(persons[personID].patronym, new_patronym, NAME_LEN);
-                    }
+                    strncpy(persons[personID].patronym, new_patronym, NAME_LEN);
                 }
-                break;
-            case 'j': //Изменение работы
+            }
+            break;
+            case 'j': // Изменение работы
+            {
+                const char *new_job = va_arg(args, const char *);
+                if (new_job && strlen(new_job) > 0)
                 {
-                    const char* new_job = va_arg(args, const char*);
-                    if (new_job && strlen(new_job) > 0) {
-                        strncpy(persons[personID].job, new_job, JOB_LEN);
-                    }
+                    strncpy(persons[personID].job, new_job, JOB_LEN);
                 }
-                break;
-            case 'P': //Изменение номера телефона
+            }
+            break;
+            case 'P': // Изменение номера телефона
+            {
+                const char *new_phone = va_arg(args, const char *);
+                if (new_phone && strlen(new_phone) > 0)
                 {
-                    const char* new_phone = va_arg(args, const char*);
-                    if (new_phone && strlen(new_phone) > 0) {
-                        strncpy(persons[personID].phone, new_phone, PHONE_LEN - 1);
-                        persons[personID].phone[PHONE_LEN - 1] = '\0';
-                    }
+                    strncpy(persons[personID].phone, new_phone, PHONE_LEN - 1);
+                    persons[personID].phone[PHONE_LEN - 1] = '\0';
                 }
-                break;
+            }
+            break;
             default:
-                return -4; //Неверный формат
+                return -4; // Неверный формат
             }
         }
     }
-    
-    va_end(args);
-    
-    return 0;
 
+    va_end(args);
+
+    return 0;
 }
 
-
-//Интерфейс
+// Интерфейс
 
 int createPerson_ui(int filedescriptor)
 {
-    //const int buffSize=100;
+    // const int buffSize=100;
     char tmpName[NAME_LEN], tmpSurname[NAME_LEN], tmpPatronym[NAME_LEN];
-   
 
     printf("Enter contact name: ");
-    scanf("%s",tmpName);
+    scanf("%s", tmpName);
 
     printf("Enter contact surname: ");
-    scanf("%s",tmpSurname);
-    
+    scanf("%s", tmpSurname);
+
     printf("Enter contact patronym: ");
-    scanf("%s",tmpPatronym);
-    
+    scanf("%s", tmpPatronym);
 
     int result = createPerson(tmpName, tmpSurname, tmpPatronym);
 
     switch (result)
     {
-        case 0:
-            printf("\nContact added succesfully! ID: %d\n", currentPosition-1);
-            break;
-        case -1:
-            printf("\nError: Phonebook is full\n");
-            break;
-        case -2:
-            printf("\nError: All fields are required!\n");
-            break;
+    case 0:
+        printf("\nContact added succesfully! ID: %d\n", currentPosition - 1);
+        break;
+    case -1:
+        printf("\nError: Phonebook is full\n");
+        break;
+    case -2:
+        printf("\nError: All fields are required!\n");
+        break;
     }
 
     return result;
 }
 int deletePerson_ui(int filedescriptor)
 {
-    if (currentPosition == 0) {
+    if (currentPosition == 0)
+    {
         printf("\nPhonebook is empty!\n");
         return -4;
     }
@@ -325,7 +331,7 @@ int deletePerson_ui(int filedescriptor)
     scanf("%d", &personID);
 
     int result = deletePerson(personID);
-    
+
     switch (result)
     {
     case 0:
@@ -338,13 +344,13 @@ int deletePerson_ui(int filedescriptor)
         break;
     }
 
-
     return result;
 }
 int editPerson_ui(int filedescriptor)
 {
-    
-    if (currentPosition == 0) {
+
+    if (currentPosition == 0)
+    {
         printf("\nPhonebook is empty!\n");
         return -4;
     }
@@ -354,9 +360,11 @@ int editPerson_ui(int filedescriptor)
     scanf("%d", &personID);
 
     int c;
-    while ((c = getchar()) != '\n' && c != EOF);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
 
-    if (personID < 0 || personID >= currentPosition) {
+    if (personID < 0 || personID >= currentPosition)
+    {
         printf("\nWrong ID!\n");
         return -3; // Неверный ID
     }
@@ -366,7 +374,8 @@ int editPerson_ui(int filedescriptor)
     scanf("%s", format);
 
     // Очищаем буфер stdin после scanf
-    while ((c = getchar()) != '\n' && c != EOF);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
 
     char new_name[NAME_LEN] = "";
     char new_surname[NAME_LEN] = "";
@@ -374,12 +383,16 @@ int editPerson_ui(int filedescriptor)
     char new_job[JOB_LEN] = "";
     char new_phone[PHONE_LEN] = "";
 
-    for (int i = 0; format[i] != '\0'; i++) {
-        if (format[i] == '%') {
+    for (int i = 0; format[i] != '\0'; i++)
+    {
+        if (format[i] == '%')
+        {
             i++;
-            if (format[i] == '\0') break;
+            if (format[i] == '\0')
+                break;
 
-            switch (format[i]) {
+            switch (format[i])
+            {
             case 'n':
                 printf("\nВведиет новое имя: ");
                 fgets(new_name, NAME_LEN, stdin);
@@ -412,36 +425,37 @@ int editPerson_ui(int filedescriptor)
         }
     }
 
-
-    const char* arguments[5];
+    const char *arguments[5];
 
     int arg_count = 0;
 
     int result = -1;
 
-    for (int i = 0; format[i] != '\0'; i++) {
-        if (format[i] == '%') {
+    for (int i = 0; format[i] != '\0'; i++)
+    {
+        if (format[i] == '%')
+        {
             i++;
-            switch (format[i]) {
-            case 'n': 
-                arguments[arg_count++] = new_name; 
+            switch (format[i])
+            {
+            case 'n':
+                arguments[arg_count++] = new_name;
                 break;
-            case 's': 
-                arguments[arg_count++] = new_surname; 
+            case 's':
+                arguments[arg_count++] = new_surname;
                 break;
-            case 'p': 
-                arguments[arg_count++] = new_patronym; 
+            case 'p':
+                arguments[arg_count++] = new_patronym;
                 break;
-            case 'j': 
-                arguments[arg_count++] = new_job; 
+            case 'j':
+                arguments[arg_count++] = new_job;
                 break;
-            case 'P': 
-                arguments[arg_count++] = new_phone; 
+            case 'P':
+                arguments[arg_count++] = new_phone;
                 break;
             default:
                 return result;
             }
-    
         }
     }
 
@@ -465,7 +479,7 @@ int editPerson_ui(int filedescriptor)
     default:
         break;
     }
-    
+
     switch (result)
     {
     case 0:
@@ -493,13 +507,14 @@ void showAllPersons_ui(int filedescriptor)
     printf("ID\tSurname\t\tName\t\tPatronym\tPhone\t\tJob\n");
     printf("------------------------------------------------------------------------\n");
 
-    for (int i = 0; i < currentPosition; i++) {
+    for (int i = 0; i < currentPosition; i++)
+    {
         printf("%d\t%s\t\t%s\t\t%s\t\t%s\t\t%s\n",
-            i,
-            persons[i].surname,
-            persons[i].name,
-            persons[i].patronym[0] ? persons[i].patronym : "-",
-            persons[i].phone[0] ? persons[i].phone : "-",
-            persons[i].job[0] ? persons[i].job : "-");
+               i,
+               persons[i].surname,
+               persons[i].name,
+               persons[i].patronym[0] ? persons[i].patronym : "-",
+               persons[i].phone[0] ? persons[i].phone : "-",
+               persons[i].job[0] ? persons[i].job : "-");
     }
 }
