@@ -10,9 +10,9 @@ int main(int argc, char *argv[])
 {
     if (argc > 1)
     {
-        int total_argc = argc-1;
+        int total_argc = argc - 1;
         int args_per_proc = total_argc / 2;
-     
+
         pid_t pid;
 
         switch (pid = fork())
@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
             }
             int status;
             wait(&status);
-            printf("Дочерний процесс завреил работу с кодом: %d\n",WEXITSTATUS(status));
+            printf("Дочерний процесс завреил работу с кодом: %d\n", WEXITSTATUS(status));
             printf("Родительский процесс завершил работу.\n");
-            _exit(EXIT_SUCCESS);
+            exit(EXIT_SUCCESS);
             break;
         }
     }
