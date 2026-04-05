@@ -32,13 +32,18 @@ extern int currentPosition;
 extern phonebook *root;
 
 char *copyString(const char *source);
+Person copyPerson(const Person *src);
 
 // Операции с деревом
 void printTreeAsTree(phonebook *node, int level);
 
+void printLevelOrder(phonebook *root);
+
 // Функции балансировки древа
 
-void storeInOrder(phonebook *root, phonebook nodes);
+void storeInOrder(phonebook *root, Person *arr[], int *index);
+phonebook *buildBalancedTree(Person *arr[], int start, int end);
+phonebook *balanceBST(phonebook *root);
 
 // Логика
 
@@ -46,6 +51,8 @@ int createPerson(char p_name[], char p_surname[], char p_patronym[], phonebook *
 int deletePerson(int personID, phonebook **node);
 int editPerson(int personID, phonebook *node, char format[], ...);
 int deleteAll(phonebook **node);
+
+void freePerson(Person *p);
 
 // Интерфейс
 
