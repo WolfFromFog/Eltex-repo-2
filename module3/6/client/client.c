@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-c_wait = 1;
+int c_wait = 1;
 int client_number = 0;
 
 int queue_connector()

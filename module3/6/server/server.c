@@ -38,7 +38,7 @@ int msg_read_test(int msqid)
         printf("Ошибка чтения сообщения. msgrcv");
         return -1;
     }
-    printf("Сообщение: {%s} приоритет {%d}.\n", msg.mtext, msg.mtype);
+    printf("Сообщение: {%s} приоритет {%ld}.\n", msg.mtext, msg.mtype);
     return 0;
 }
 

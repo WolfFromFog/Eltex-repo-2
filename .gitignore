@@ -17,3 +17,5 @@ module3/2/interpreter
 module3/4/interpreter
 module3/5/signaler
 module3/5/signal_file
+module3/6/server/server
+module3/6/client/client
