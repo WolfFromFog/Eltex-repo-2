@@ -19,3 +19,5 @@ module3/5/signaler
 module3/5/signal_file
 module3/6/server/server
 module3/6/client/client
+module3/6/client/main.c
+module3/6/server/client

@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     do
     {
-        if (msg_read_test(msqid) == -1)
+        if (msg_read(msqid) == -1)
         {
             printf("Ошибка чтения сообщения из очереди. Удаление очереди\n");
             queue_delete(msqid);

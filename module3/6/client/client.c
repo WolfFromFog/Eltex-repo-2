@@ -3,9 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 int c_wait = 1;
-int client_number = 0;
+long int client_number;
 
 int queue_connector()
 {
@@ -22,16 +23,27 @@ int queue_connector()
         perror("Ошибка: не удалось подключится к очереди.");
         exit(EXIT_FAILURE);
     }
+    char msg2send[MSG_BUFF];
+    sprintf(msg2send, "%ld is connecting", client_number);
+    my_msgbuf msg;
+    msg.mtype = 10;
+    strcpy(msg.mtext, msg2send);
+    int len = strlen(msg.mtext) + 1;
+    if (msgsnd(msqid, &msg, len, 0) == -1)
+    {
+        perror("Ошибка: Не удалось отправить запрос подключения.");
+        exit(EXIT_FAILURE);
+    }
     return msqid;
 }
 
-int msg_send(int msqid, char *msg2send, int prior)
+int msg_send(int msqid, char *msg2send)
 {
-    // char str2send[MSG_BUFF + 4];
-    //  sprintf(str2send, "%d %s", client_number, msg2send);
+    char str2send[MSG_BUFF + 32];
+    snprintf(str2send, sizeof(str2send), "%ld %s", client_number, msg2send);
     my_msgbuf msg;
-    msg.mtype = prior;
-    strcpy(msg.mtext, msg2send);
+    msg.mtype = 10;
+    strcpy(msg.mtext, str2send);
     int len = strlen(msg.mtext) + 1;
     if (msgsnd(msqid, &msg, len, 0) == -1)
     {
@@ -44,4 +56,25 @@ int msg_send(int msqid, char *msg2send, int prior)
 void listener_SIGINT(int sig)
 {
     c_wait = 0;
+}
+
+int msg_read(int msqid)
+{
+    my_msgbuf msg;
+    ssize_t ret = msgrcv(msqid, &msg, MSG_BUFF, client_number, IPC_NOWAIT);
+    if (ret == -1)
+    {
+        if (errno == ENOMSG)
+        {
+            return 0;
+        }
+
+        perror("msgrcv");
+        return -1;
+    }
+    else
+    {
+        printf("Получено сообщение {%s}\n", msg.mtext);
+    }
+    return 0;
 }

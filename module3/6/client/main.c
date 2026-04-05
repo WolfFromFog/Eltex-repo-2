@@ -8,28 +8,28 @@ int main(int argc, char *argv[])
 {
     if (argc == 2)
     {
-        client_number = atoi(argv[1]);
+        // char buffer[MSG_BUFF + 20];
+        client_number = atol(argv[1]);
         int msqid = queue_connector();
         signal(SIGINT, listener_SIGINT);
-        char msg2send[MSG_BUFF], msg2read[MSG_BUFF];
-        int msg_priority = 0;
+        char msg2send[MSG_BUFF]; // msg2read[MSG_BUFF];
         do
         {
-            printf("Write message to send and to whom in format:{msg} {priority}");
-            scanf("%s %d", msg2send, &msg_priority);
-            if (msg_priority <= 0)
+            msg_read(msqid);
+            printf("Write message to send: ");
+            if (fgets(msg2send, sizeof(msg2send), stdin) == NULL)
             {
-                printf("Приоритет должен быть больше 0!\n");
-                continue;
+                break;
             }
-            if (msg_send(msqid, msg2send, msg_priority) == -1)
+            msg2send[strcspn(msg2send, "\n")] = '\0';
+            if (msg_send(msqid, msg2send) == -1)
             {
-                printf("Ошибка отправки сообщения");
+                printf("Ошибка отправки сообщения.\n");
                 continue;
             }
             else
             {
-                printf("%d: Сообщение {%s} отправлено получателю {%d}\n", client_number, msg2send, msg_priority);
+                printf("Сообщение {%s} отправлено.\n", msg2send);
             }
         } while (c_wait);
     }

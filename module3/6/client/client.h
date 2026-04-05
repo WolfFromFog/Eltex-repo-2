@@ -4,7 +4,7 @@
 #define MSG_BUFF 128
 
 extern int c_wait;
-extern int client_number;
+extern long int client_number;
 
 typedef struct my_msgbuf
 {
@@ -13,8 +13,8 @@ typedef struct my_msgbuf
 } my_msgbuf;
 
 int queue_connector();
-int msg_send(int msqid, char *msg, int prior);
-int msg_read();
+int msg_send(int msqid, char *msg);
+int msg_read(int msqid);
 void listener_SIGINT(int sig);
 
 #endif
