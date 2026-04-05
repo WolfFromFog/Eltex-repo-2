@@ -36,17 +36,20 @@ int msg_read(int msqid)
     if (msgrcv(msqid, &msg, MSG_BUFF, 10, 0) == -1)
     {
         perror("msgrcv");
-        printf("Ошибка чтения сообщения. msgrcv");
         return -1;
     }
     printf("Получено сообщение: {%s}.\n", msg.mtext);
-    long int id = 0;
-    char text[MSG_BUFF];
-    if (sscanf(msg.mtext, "%ld %127s", &id, text) != 2)
+
+    char *space = strchr(msg.mtext, ' ');
+    if (!space)
     {
         printf("Неверный формат сообщения\n");
         return -2;
     }
+    *space = '\0';
+    long int id = atol(msg.mtext);
+    char *text = space + 1;
+
     if (strcmp(text, "is connecting") == 0)
     {
         addClient2Array(&clients, &clients_count, id);
@@ -59,16 +62,7 @@ int msg_read(int msqid)
         msg_send(msqid, "disconnected", id);
         return 0;
     }
-    char *space = strchr(msg.mtext, ' ');
-    if (space)
-    {
-        strncpy(text, space + 1, MSG_BUFF - 1);
-        text[MSG_BUFF - 1] = '\0';
-    }
-    else
-    {
-        text[0] = '\0';
-    }
+
     msg_send(msqid, text, id);
     return 0;
 }
@@ -116,7 +110,7 @@ void addClient2Array(long int **array, int *size, long int id)
 {
     {
         (*size)++;
-        long int *new_array = (long int *)realloc(*array, *size * sizeof(int));
+        long int *new_array = (long int *)realloc(*array, *size * sizeof(long int));
         if (!new_array)
         {
             perror("realloc");
