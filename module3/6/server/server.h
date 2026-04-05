@@ -25,4 +25,5 @@ int msg_send(int msqid, char *msg2send, long int mtype);
 void listener_SIGINT(int sig);
 void addClient2Array(long int **array, int *size, long int id);
 void removeClientfromArray(long int **array, int *size, long int id);
+int isClientExists(long int id);
 #endif

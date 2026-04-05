@@ -29,7 +29,7 @@ int queue_creat()
     }
     return msqid;
 }
-
+// Чтение сообщений
 int msg_read(int msqid)
 {
     my_msgbuf msg;
@@ -52,10 +52,19 @@ int msg_read(int msqid)
 
     if (strcmp(text, "is connecting") == 0)
     {
-        addClient2Array(&clients, &clients_count, id);
+        if (!isClientExists(id))
+        {
+            addClient2Array(&clients, &clients_count, id);
+        }
         msg_send(msqid, "connected", id);
         return 0;
     }
+    if (!isClientExists(id))
+    {
+        printf("Такого клиента нету. Игнор.\n");
+        return 0;
+    }
+
     if (strcmp(text, "shutdown") == 0)
     {
         removeClientfromArray(&clients, &clients_count, id);
@@ -66,7 +75,7 @@ int msg_read(int msqid)
     msg_send(msqid, text, id);
     return 0;
 }
-
+// Чтение тетсовое
 int msg_read_test(int msqid)
 {
     my_msgbuf msg;
@@ -79,7 +88,7 @@ int msg_read_test(int msqid)
     printf("Получено сообщение: {%s} приоритет {%ld}.\n", msg.mtext, msg.mtype);
     return 0;
 }
-
+// Отправка ответов
 int msg_send(int msqid, char *msg2send, long int mtype)
 {
     my_msgbuf msg;
@@ -101,11 +110,12 @@ int queue_delete(int msqid)
     return status;
 }
 
+//
 void listener_SIGINT(int sig)
 {
     c_wait = 0;
 }
-
+// Доавбление клиентов в массив
 void addClient2Array(long int **array, int *size, long int id)
 {
     {
@@ -121,7 +131,7 @@ void addClient2Array(long int **array, int *size, long int id)
         printf("Добавлен клиент %ld.\n", id);
     }
 }
-
+// Удаление клиентов из массива
 void removeClientfromArray(long int **array, int *size, long int id)
 {
     int flag = 0;
@@ -165,4 +175,15 @@ void removeClientfromArray(long int **array, int *size, long int id)
     {
         printf("Такого клиента нет.\n");
     }
+}
+
+// Проверяет зарегистрирован ли клиент с данным id
+int isClientExists(long int id)
+{
+    for (int i = 0; i < clients_count; i++)
+    {
+        if (clients[i] == id)
+            return 1;
+    }
+    return 0;
 }
