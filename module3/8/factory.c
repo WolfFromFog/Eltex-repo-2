@@ -1,6 +1,6 @@
+#include "factory.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "producer.h"
 #include <sys/sem.h>
 #include <string.h>
 

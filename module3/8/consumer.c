@@ -1,14 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "producer.h"
+#include "factory.h"
 #include <signal.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {
     srand(10);
     char *filename;
-    int numOfProducts;
     if (argc == 2)
     {
         filename = (char *)malloc(strlen(argv[1]));

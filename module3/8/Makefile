@@ -1,8 +1,8 @@
-TARGET_PROD = producer/producer
-TARGET_CONS = consumer/consumer
+TARGET_PROD = producer
+TARGET_CONS = consumer
 
-SRC_RPOD = producer/main.c producer/producer.c
-SRC_CONS = consumer/consumer.c consumer/main.c
+SRC_RPOD = factory.c producer.c
+SRC_CONS = factory.c consumer.c
 
 all: ${TARGET_CONS} ${TARGET_PROD}
 
