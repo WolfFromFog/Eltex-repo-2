@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     while (c_wait)
     {
     }
-
     free(filename);
+    printf("Работа завершена.\n");
     return 0;
 }

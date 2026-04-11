@@ -5,21 +5,30 @@
 
 #include <stdlib.h>
 
-//Вспомогательное
+union semun
+{
+    int val;               /* значение для SETVAL */
+    struct semid_ds *buf;  /* буферы для  IPC_STAT, IPC_SET */
+    unsigned short *array; /* массивы для GETALL, SETALL */
+                           /* часть, особенная для Linux: */
+    struct seminfo *__buf; /* буфер для IPC_INFO */
+};
+
+// Вспомогательное
 extern int c_wait;
 
 void listener_SIGINT(int sig);
 
-//Производитель
-//Создание объекта
+// Производитель
+// Создание объекта
 char *produce_item();
-//Выгрузка объекта 
-void put_item(char *filename);
+// Выгрузка объекта
+ssize_t put_item(int filedisc, char *str);
 
-//потребитель
-//Забор объекта
-void take_item();
-//Обработка объекта
+// потребитель
+// Забор объекта
+ssize_t take_item(int filedisc, char *str);
+// Обработка объекта
 void consume_item();
 
 #endif

@@ -3,9 +3,16 @@
 #include <stdio.h>
 #include <sys/sem.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 int c_wait = 1;
 
+void listener_SIGINT(int sig)
+{
+    c_wait = 0;
+}
+// --------------------- Производитель
 char *produce_item()
 {
     int count = rand() % 10 + 1;
@@ -32,15 +39,56 @@ char *produce_item()
         str = new_str;
         strcat(str, buff);
     }
+    strcat(str, "\n");
     return str;
 }
 
-void put_item(char *filename)
+ssize_t put_item(int filedisc, char *str)
 {
-    return;
+    if (str == NULL)
+    {
+        perror("Передана пустая строка");
+        return -1;
+    }
+
+    const char *p = str;
+    size_t remaining = strlen(str);
+    ssize_t total = 0;
+
+    while (remaining > 0)
+    {
+        ssize_t written = write(filedisc, p, remaining);
+        if (written < 0)
+        {
+            perror("Ошибка записи в файл");
+            return -2;
+        }
+        if (written == 0)
+        {
+            perror("Ничего не записано в файл");
+            return -3;
+        }
+        total += written;
+        p += written;
+        remaining -= written;
+    }
+    return total;
 }
 
-void listener_SIGINT(int sig)
+//-----------------Потребитель
+
+ssize_t take_item(int filedisc, char *str)
 {
-    c_wait = 0;
+    // lseek(filedisc, 0, SEEK_END);
+    ssize_t bRead = read(filedisc, str, STRING_SIZE);
+    if (bRead < 0)
+    {
+        close(filedisc);
+        return -1;
+    }
+    return bRead;
+}
+
+void consume_item()
+{
 }
