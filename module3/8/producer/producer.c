@@ -4,6 +4,8 @@
 #include <sys/sem.h>
 #include <string.h>
 
+int c_wait = 1;
+
 char *produce_item()
 {
     int count = rand() % 10 + 1;
@@ -36,4 +38,9 @@ char *produce_item()
 void put_item(char *filename)
 {
     return;
+}
+
+void listener_SIGINT(int sig)
+{
+    c_wait = 0;
 }

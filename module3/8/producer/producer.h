@@ -5,7 +5,10 @@
 
 #include <stdlib.h>
 
+extern int c_wait;
+
 char *produce_item();
-ssize_t put_item();
+void put_item();
+void listener_SIGINT(int sig);
 
 #endif

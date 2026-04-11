@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "producer.h"
-// #include <stream.h>
+#include <signal.h>
 #include <string.h>
 
 int main(int argc, char *argv[])
@@ -26,10 +26,9 @@ int main(int argc, char *argv[])
         free(filename);
         return 0;
     }
-    int c_wait = 1;
+    signal(SIGINT, listener_SIGINT);
     while (c_wait)
     {
-        /* code */
     }
 
     free(filename);
