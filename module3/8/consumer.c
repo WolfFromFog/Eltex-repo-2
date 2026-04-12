@@ -32,8 +32,15 @@ int main(int argc, char *argv[])
         free(filename);
         return 0;
     }
+
+    key_t key = ftok("Makefile", "F");
+    int semid = semget(key, 1, 0666 | IPC_CREAT);
+    union semun arg;
     int filedesc;
-    filedesc = open(filename, O_RDWR | O_CREAT, 0777);
+    filedesc = open(filename, O_WRONLY | O_CREAT, 0666);
+    arg.val = 1;
+    semctl(semid, 1, SETVAL, arg);
+
     if (filedesc == -1)
     {
         printf("Не удалось открыть файл.\n");
@@ -44,6 +51,8 @@ int main(int argc, char *argv[])
     signal(SIGINT, listener_SIGINT);
     char buff[1024];
     int flag = 0;
+    struct sembuf lock = {0, -1, 0};
+    struct sembuf unlock[2] = {{0, 0, 0}, {0, 1, 0}};
     while (c_wait)
     {
         ssize_t bytes = take_item(filedesc, buff, sizeof(buff));
@@ -64,11 +73,18 @@ int main(int argc, char *argv[])
         }
         if (strchr(buff, '!') == NULL)
         {
+            if (semop(semid, &lock, 1) == -1)
+            {
+                perror("semop:lock");
+            }
             consume_item(buff);
+
             lseek(filedesc, -bytes, SEEK_CUR);
             buff[bytes - 2] = '!';
             write(filedesc, buff, bytes);
+
             flag = 0;
+            semop(semid, &unlock, 1);
             sleep(1);
         }
     }
