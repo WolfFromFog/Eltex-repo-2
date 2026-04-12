@@ -3,13 +3,10 @@
 #include "factory.h"
 #include <signal.h>
 #include <string.h>
-#include <sys/types.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
 #include <fcntl.h>
+#include <semaphore.h>
 
 int main(int argc, char *argv[])
 {
@@ -33,22 +30,14 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    key_t key = ftok(filename, 'F');
-    int semid = semget(key, 1, 0666 | IPC_CREAT);
-    if (semid == -1)
+    sem_t *semap = sem_open(filename, O_CREAT | O_EXCL);
+    if (errno == EEXIST)
     {
-        perror("semget");
-        exit(1);
+        perror("sem exist");
     }
-    union semun arg;
+
     int filedesc;
     filedesc = open(filename, O_RDWR | O_CREAT, 0666);
-    arg.val = 1;
-    if (semctl(semid, 0, SETVAL, arg) == -1)
-    {
-        if (errno != EPERM)
-            perror("semctl");
-    }
 
     if (filedesc == -1)
     {
@@ -60,19 +49,22 @@ int main(int argc, char *argv[])
     signal(SIGINT, listener_SIGINT);
     char buff[1024];
     int flag = 0;
-    struct sembuf lock = {0, -1, 0};
-    struct sembuf unlock = {0, 1, 0};
+
     while (c_wait)
     {
-        if (semop(semid, &lock, 1) == -1)
+        if (sem_wait(semap) == -1)
         {
-            perror("semop:lock");
+            perror("sem_wait");
         }
         ssize_t bytes = take_item(filedesc, buff, sizeof(buff));
         if (bytes < 0)
         {
             printf("Не удалось считать строку!\n");
-            semop(semid, &unlock, 1);
+            if (sem_post(semap) == -1)
+            {
+                perror("sem_post");
+            }
+
             continue;
         }
         if (bytes == 0)
@@ -83,7 +75,11 @@ int main(int argc, char *argv[])
                 flag = 1;
             }
             sleep(1);
-            semop(semid, &unlock, 1);
+            if (sem_post(semap) == -1)
+            {
+                perror("sem_post");
+            }
+
             continue;
         }
         if (strchr(buff, '!') == NULL)
@@ -97,7 +93,10 @@ int main(int argc, char *argv[])
             sleep(1);
             flag = 0;
         }
-        semop(semid, &unlock, 1);
+        if (sem_post(semap) == -1)
+        {
+            perror("sem_post");
+        }
     }
     free(filename);
     close(filedesc);
