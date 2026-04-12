@@ -35,11 +35,20 @@ int main(int argc, char *argv[])
     // pid_t pid;
     key_t key = ftok("Makefile", 'F');
     int semid = semget(key, 1, 0666 | IPC_CREAT);
+    if (semid == -1)
+    {
+        perror("semget");
+        exit(1);
+    }
     union semun arg;
     int filedesc;
     filedesc = open(filename, O_WRONLY | O_CREAT, 0666);
     arg.val = 1;
-    semctl(semid, 1, SETVAL, arg);
+    if (semctl(semid, 0, SETVAL, arg) == -1)
+    {
+        if (errno != EPERM)
+            perror("semctl");
+    }
     if (filedesc == -1)
     {
         printf("Не удалось открыть файл.\n");
@@ -48,7 +57,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     struct sembuf lock = {0, -1, 0};
-    struct sembuf unlock[2] = {{0, 0, 0}, {0, 1, 0}};
+    struct sembuf unlock = {0, 1, 0};
 
     signal(SIGINT, listener_SIGINT);
     lseek(filedesc, 0, SEEK_END);
@@ -63,7 +72,7 @@ int main(int argc, char *argv[])
         {
             printf("Не удалось записать строку!\n");
         }
-        semop(semid, &unlock, 2);
+        semop(semid, &unlock, 1);
         sleep(1);
     }
     free(filename);
