@@ -21,3 +21,9 @@ module3/6/server/server
 module3/6/client/client
 module3/6/client/main.c
 module3/6/server/client
+module3/7/pin_pong
+module3/8/producer/producer
+module3/8/consumer/consumer
+module3/8/producer
+module3/8/consumer
+module3/8/Storage
