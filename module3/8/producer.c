@@ -34,21 +34,17 @@ int main(int argc, char *argv[])
     }
     // pid_t pid;
     key_t key = ftok(filename, 'F');
-    int semid = semget(key, 1, 0666 | IPC_CREAT);
+    int semid = semget(key, 2, 0666 | IPC_CREAT);
     if (semid == -1)
     {
         perror("semget");
         exit(1);
     }
-    union semun arg;
     int filedesc;
     filedesc = open(filename, O_WRONLY | O_CREAT, 0666);
-    arg.val = 1;
-    if (semctl(semid, 0, SETVAL, arg) == -1)
-    {
-        if (errno != EPERM)
-            perror("semctl");
-    }
+
+    semctl(semid, 0, SETVAL, 1); // mutex = 1
+    semctl(semid, 1, SETVAL, 0); // counter = 0
     if (filedesc == -1)
     {
         printf("Не удалось открыть файл.\n");
@@ -58,6 +54,10 @@ int main(int argc, char *argv[])
     }
     struct sembuf lock = {0, -1, 0};
     struct sembuf unlock = {0, 1, 0};
+
+    struct sembuf inc_counter = {1, +1, 0};
+    struct sembuf dec_counter = {1, -1, SEM_UNDO}; // SEM_UNDO на случай падения
+    semop(semid, &inc_counter, 1);
 
     signal(SIGINT, listener_SIGINT);
     lseek(filedesc, 0, SEEK_END);
@@ -77,7 +77,9 @@ int main(int argc, char *argv[])
     }
     free(filename);
     close(filedesc);
-    int cnt = semctl(semid, 0, GETNCNT);
+
+    semop(semid, &dec_counter, 1);
+    int cnt = semctl(semid, 1, GETVAL);
     if (cnt == 0)
     {
         semctl(semid, 0, IPC_RMID);
