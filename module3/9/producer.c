@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
         perror("Wrong argc");
         exit(EXIT_FAILURE);
     }
-    sem_t *semap = sem_open(filename, O_CREAT | O_EXCL);
-    if (errno == EEXIST)
+    sem_t *semap = sem_open(filename, O_CREAT, 0666, 1);
+    if (semap == SEM_FAILED)
     {
-        perror("sem exist");
+        perror("sem_open");
         exit(1);
     }
 
@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
     }
     free(filename);
     close(filedesc);
+    sem_close(semap);
     printf("Работа завершена.\n");
     return 0;
 }
