@@ -29,6 +29,7 @@ ssize_t put_item(int filedisc, char *str);
 // Забор объекта
 ssize_t take_item(int filedisc, char *str);
 // Обработка объекта
-void consume_item();
+void consume_item(char *str);
+void update_item(int filedisc);
 
 #endif

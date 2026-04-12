@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     // pid_t pid;
-    // key_t key;
+    key_t key = ftok("Makefile", "F");
     // int semid;
     // union semun arg;
     int filedesc;
@@ -53,7 +53,10 @@ int main(int argc, char *argv[])
     while (c_wait)
     {
         char *item = produce_item();
-        put_item(filedesc, item);
+        if (put_item(filedesc, item) < 0)
+        {
+            printf("Не удалось записать строку!\n");
+        }
         sleep(1);
     }
     free(filename);

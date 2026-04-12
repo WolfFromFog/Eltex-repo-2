@@ -5,6 +5,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <limits.h>
 
 int c_wait = 1;
 
@@ -80,7 +81,7 @@ ssize_t put_item(int filedisc, char *str)
 ssize_t take_item(int filedisc, char *str)
 {
     // lseek(filedisc, 0, SEEK_END);
-    ssize_t bRead = read(filedisc, str, STRING_SIZE);
+    ssize_t bRead = read(filedisc, str, 1024);
     if (bRead < 0)
     {
         close(filedisc);
@@ -89,6 +90,32 @@ ssize_t take_item(int filedisc, char *str)
     return bRead;
 }
 
-void consume_item()
+void consume_item(char *str)
+{
+    int min = INT_MAX, max = INT_MIN;
+    char *token = strtok(str, " \n");
+    if (token == NULL)
+    {
+        perror("Пустая строка");
+        printf("Пустая строка");
+        return;
+    }
+    while (token != NULL)
+    {
+        int tmp = atoi(token);
+        if (tmp > max)
+        {
+            max = tmp;
+        }
+        if (tmp < min)
+        {
+            min = tmp;
+        }
+        token = strtok(NULL, " ");
+    }
+    printf("Минимум: %d, максимум: %d\n", min, max);
+}
+
+void update_item(int filedisc)
 {
 }
