@@ -52,8 +52,7 @@ int main(int argc, char *argv[])
 
     while (c_wait)
     {
-        sleep(1);
-        printf("Новый цикл\n");
+        // printf("Новый цикл\n");
         if (sem_wait(semap) == -1)
         {
             perror("sem_wait");
@@ -70,7 +69,7 @@ int main(int argc, char *argv[])
         }
         if (bytes == 0)
         {
-            printf("Пусто\n");
+            // printf("Пусто\n");
             if (flag == 0)
             {
                 printf("Файл обработан. Ожидание новых данных.\n");
@@ -80,11 +79,12 @@ int main(int argc, char *argv[])
             {
                 perror("sem_post");
             }
+            sleep(1);
             continue;
         }
         if (strchr(buff, '!') == NULL)
         {
-            printf("Чтение\n");
+            // printf("Чтение\n");
             consume_item(buff);
             if (lseek(filedesc, -bytes, SEEK_CUR) < 0)
             {
@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
                     perror("sem_post");
                 }
             }
+            sleep(1);
             flag = 0;
         }
         if (sem_post(semap) == -1)
