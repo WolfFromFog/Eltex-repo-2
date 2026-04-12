@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     // pid_t pid;
-    key_t key = ftok("Makefile", 'F');
+    key_t key = ftok(filename, 'F');
     int semid = semget(key, 1, 0666 | IPC_CREAT);
     if (semid == -1)
     {
