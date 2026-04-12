@@ -77,6 +77,13 @@ int main(int argc, char *argv[])
     }
     free(filename);
     close(filedesc);
+    int cnt = semctl(semid, 0, GETNCNT);
+    if (cnt == 0)
+    {
+        semctl(semid, 0, IPC_RMID);
+        printf("Семафор удалён\n");
+    }
+
     printf("Работа завершена.\n");
     return 0;
 }
