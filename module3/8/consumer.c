@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    key_t key = ftok("Makefile", "F");
+    key_t key = ftok("Makefile", 'F');
     int semid = semget(key, 1, 0666 | IPC_CREAT);
     union semun arg;
     int filedesc;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
             write(filedesc, buff, bytes);
 
             flag = 0;
-            semop(semid, &unlock, 1);
+            semop(semid, &unlock, 2);
             sleep(1);
         }
     }
