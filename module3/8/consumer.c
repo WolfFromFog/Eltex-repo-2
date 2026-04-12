@@ -43,9 +43,10 @@ int main(int argc, char *argv[])
     }
     signal(SIGINT, listener_SIGINT);
     char buff[1024];
+    int flag = 0;
     while (c_wait)
     {
-        ssize_t bytes = take_item(filedesc, buff);
+        ssize_t bytes = take_item(filedesc, buff, sizeof(buff));
         if (bytes < 0)
         {
             printf("Не удалось считать строку!\n");
@@ -53,12 +54,21 @@ int main(int argc, char *argv[])
         }
         if (bytes == 0)
         {
-            printf("Конец файла! Выход.\n");
-            break;
+            if (flag == 0)
+            {
+                printf("Файл обработан. Ожидание новых данных.\n");
+                flag = 1;
+            }
+            sleep(1);
+            continue;
         }
         if (strchr(buff, '!') == NULL)
         {
             consume_item(buff);
+            lseek(filedesc, -bytes, SEEK_CUR);
+            buff[bytes - 2] = '!';
+            write(filedesc, buff, bytes);
+            flag = 0;
             sleep(1);
         }
     }

@@ -40,9 +40,18 @@ char *produce_item()
         str = new_str;
         strcat(str, buff);
     }
-    strcat(str, "\n");
-    printf("Создана строка %s", str);
-    return str;
+    size_t new_len = strlen(str) + 2;
+    char *new_str = realloc(str, new_len + 1);
+    if (!new_str)
+    {
+        free(str);
+        return NULL;
+    }
+    new_str[new_len - 2] = ' ';
+    new_str[new_len - 1] = '\n';
+    new_str[new_len] = '\0';
+    printf("Создана строка %s", new_str);
+    return new_str;
 }
 
 ssize_t put_item(int filedisc, char *str)
@@ -79,22 +88,34 @@ ssize_t put_item(int filedisc, char *str)
 
 //-----------------Потребитель
 
-ssize_t take_item(int filedisc, char *str)
+ssize_t take_item(int filedisc, char *str, size_t max_len)
 {
-    // lseek(filedisc, 0, SEEK_END);
-    ssize_t bRead = read(filedisc, str, 1024);
-    if (bRead < 0)
+    size_t i = 0;
+    char c;
+    ssize_t r;
+
+    while (i < max_len - 1)
     {
-        close(filedisc);
-        return -1;
+        r = read(filedisc, &c, 1);
+        if (r < 0)
+            return -1;
+        if (r == 0)
+            break;
+
+        str[i++] = c;
+        if (c == '\n')
+            break;
     }
-    return bRead;
+    str[i] = '\0';
+    return i;
 }
 
 void consume_item(char *str)
 {
     int min = INT_MAX, max = INT_MIN;
-    char *token = strtok(str, " \n");
+    char *dup = malloc(strlen(str) + 1);
+    strcpy(dup, str);
+    char *token = strtok(dup, " \n");
     if (token == NULL)
     {
         perror("Пустая строка");
@@ -115,8 +136,5 @@ void consume_item(char *str)
         token = strtok(NULL, " ");
     }
     printf("Минимум: %d, максимум: %d\n", min, max);
-}
-
-void update_item(int filedisc)
-{
+    free(dup);
 }
