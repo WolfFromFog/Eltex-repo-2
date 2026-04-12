@@ -124,14 +124,18 @@ void consume_item(char *str)
     }
     while (token != NULL)
     {
-        int tmp = atoi(token);
-        if (tmp > max)
+
+        if (token[0] != '\n')
         {
-            max = tmp;
-        }
-        if (tmp < min)
-        {
-            min = tmp;
+            int tmp = atoi(token);
+            if (tmp > max)
+            {
+                max = tmp;
+            }
+            if (tmp < min)
+            {
+                min = tmp;
+            }
         }
         token = strtok(NULL, " ");
     }
