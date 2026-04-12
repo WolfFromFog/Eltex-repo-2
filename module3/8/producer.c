@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
     struct sembuf inc_counter = {1, +1, 0};
     struct sembuf dec_counter = {1, -1, SEM_UNDO}; // SEM_UNDO на случай падения
-    semop(semid, &inc_counter, 1);
+    // semop(semid, &inc_counter, 1);
 
     signal(SIGINT, listener_SIGINT);
     lseek(filedesc, 0, SEEK_END);
@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     free(filename);
     close(filedesc);
 
+    /*
     semop(semid, &dec_counter, 1);
     int cnt = semctl(semid, 1, GETVAL);
     if (cnt == 0)
@@ -85,6 +86,7 @@ int main(int argc, char *argv[])
         semctl(semid, 0, IPC_RMID);
         printf("Семафор удалён\n");
     }
+    */
 
     printf("Работа завершена.\n");
     return 0;
