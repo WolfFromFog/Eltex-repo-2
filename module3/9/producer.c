@@ -63,11 +63,14 @@ int main(int argc, char *argv[])
         {
             perror("sem_post");
         }
-
         sleep(1);
     }
     free(filename);
     close(filedesc);
+    int val;
+    sem_getvalue(semap, &val);
+    if (val == 0)
+        sem_post(semap);
     sem_close(semap);
     printf("Работа завершена.\n");
     return 0;

@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
         free(filename);
         return 0;
     }
-    
+
     sem_t *semap = sem_open(filename, O_CREAT, 0666, 1);
     if (semap == SEM_FAILED)
     {
@@ -52,6 +52,8 @@ int main(int argc, char *argv[])
 
     while (c_wait)
     {
+        sleep(1);
+        printf("Новый цикл\n");
         if (sem_wait(semap) == -1)
         {
             perror("sem_wait");
@@ -64,33 +66,43 @@ int main(int argc, char *argv[])
             {
                 perror("sem_post");
             }
-
             continue;
         }
         if (bytes == 0)
         {
+            printf("Пусто\n");
             if (flag == 0)
             {
                 printf("Файл обработан. Ожидание новых данных.\n");
                 flag = 1;
             }
-            sleep(1);
             if (sem_post(semap) == -1)
             {
                 perror("sem_post");
             }
-
             continue;
         }
         if (strchr(buff, '!') == NULL)
         {
-
+            printf("Чтение\n");
             consume_item(buff);
-
-            lseek(filedesc, -bytes, SEEK_CUR);
+            if (lseek(filedesc, -bytes, SEEK_CUR) < 0)
+            {
+                perror("lseek");
+                if (sem_post(semap) == -1)
+                {
+                    perror("sem_post");
+                }
+            }
             buff[bytes - 2] = '!';
-            write(filedesc, buff, bytes);
-            sleep(1);
+            if (write(filedesc, buff, bytes) < 0)
+            {
+                perror("write");
+                if (sem_post(semap) == -1)
+                {
+                    perror("sem_post");
+                }
+            }
             flag = 0;
         }
         if (sem_post(semap) == -1)
@@ -100,6 +112,10 @@ int main(int argc, char *argv[])
     }
     free(filename);
     close(filedesc);
+    int val;
+    sem_getvalue(semap, &val);
+    if (val == 0)
+        sem_post(semap);
     sem_close(semap);
     printf("Работа завершена.\n");
     return 0;
