@@ -41,6 +41,7 @@ char *produce_item()
         strcat(str, buff);
     }
     strcat(str, "\n");
+    printf("Создана строка %s", str);
     return str;
 }
 
