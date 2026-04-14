@@ -1,7 +1,6 @@
 #include "factory.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/sem.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
