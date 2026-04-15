@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include "factory.h"
@@ -7,47 +8,39 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <sys/mman.h>
 
 int main(int argc, char *argv[])
 {
     srand(12);
-    char *filename;
-    if (argc == 2)
-    {
-        filename = (char *)malloc(strlen(argv[1]));
-        strcpy(filename, argv[1]);
-    }
-    if (argc == 1)
-    {
-        char tmp_filename[] = "Storage";
-        filename = (char *)malloc(strlen(tmp_filename));
-        strcpy(filename, tmp_filename);
-    }
-    if (argc > 2)
-    {
-        printf("Ошибка. Неверное количество аргументов. Завершение работы.\n");
-        perror("Wrong argc");
-        exit(EXIT_FAILURE);
-    }
+    char filename[] = "SMemory";
+
     sem_t *semap = sem_open(filename, O_CREAT, 0666, 1);
     if (semap == SEM_FAILED)
     {
         perror("sem_open");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
-
-    int filedesc;
-    filedesc = open(filename, O_WRONLY | O_CREAT, 0666);
-    if (filedesc == -1)
+    int shm_fd = shm_open(filename, O_CREAT | O_RDWR, 0666);
+    if (shm_fd == -1)
     {
-        printf("Не удалось открыть файл.\n");
-        perror("Ошибка открытия");
-        free(filename);
+        perror("shm_open");
+        exit(EXIT_FAILURE);
+    }
+    if (ftruncate(shm_fd, SHM_SIZE) == -1)
+    {
+        perror("truncate");
         exit(EXIT_FAILURE);
     }
 
+    char *shmaddr = mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (shmaddr == MAP_FAILED)
+    {
+        perror("mmap");
+        exit(EXIT_FAILURE);
+    }
+    close(shm_fd);
     signal(SIGINT, listener_SIGINT);
-    lseek(filedesc, 0, SEEK_END);
     while (c_wait)
     {
         char *item = produce_item();
@@ -55,7 +48,7 @@ int main(int argc, char *argv[])
         {
             perror("sem_wait");
         }
-        if (put_item(filedesc, item) < 0)
+        if (put_item(shmaddr, item) < 0)
         {
             printf("Не удалось записать строку!\n");
         }
@@ -64,13 +57,25 @@ int main(int argc, char *argv[])
             perror("sem_post");
         }
         sleep(1);
+
+        if (sem_wait(semap) == -1)
+        {
+            perror("sem_wait");
+        }
+        if (strchr(shmaddr, 'и') != NULL)
+        {
+            printf("%s", shmaddr);
+        }
+
+        if (sem_post(semap) == -1)
+        {
+            perror("sem_post");
+        }
+        sleep(1);
     }
-    free(filename);
-    close(filedesc);
-    int val;
-    sem_getvalue(semap, &val);
-    if (val == 0)
-        sem_post(semap);
+    munmap(shmaddr, SHM_SIZE);
+    shm_unlink(filename);
+    sem_post(semap);
     sem_close(semap);
     printf("Работа завершена.\n");
     return 0;

@@ -2,6 +2,7 @@
 #define FACTORY_H
 
 #define STRING_SIZE 256
+#define SHM_SIZE 4096
 
 #include <stdlib.h>
 
@@ -23,12 +24,12 @@ void listener_SIGINT(int sig);
 // Создание объекта
 char *produce_item();
 // Выгрузка объекта
-ssize_t put_item(int filedisc, char *str);
+ssize_t put_item(char *shm_block, char *str);
 
 // потребитель
 // Забор объекта
-ssize_t take_item(int filedisc, char *str, size_t max_len);
+ssize_t take_item(char *shm_block, char *str);
 // Обработка объекта
-void consume_item(char *str);
+void consume_item(char *shm_block, char *str);
 
 #endif

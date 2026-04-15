@@ -53,7 +53,7 @@ char *produce_item()
     return new_str;
 }
 
-ssize_t put_item(int filedisc, char *str)
+ssize_t put_item(char *shm_block, char *str)
 {
     if (str == NULL)
     {
@@ -61,55 +61,20 @@ ssize_t put_item(int filedisc, char *str)
         return -1;
     }
 
-    const char *p = str;
-    size_t remaining = strlen(str);
-    ssize_t total = 0;
+    strcpy(shm_block, str);
 
-    while (remaining > 0)
-    {
-        ssize_t written = write(filedisc, p, remaining);
-        if (written < 0)
-        {
-            perror("Ошибка записи в файл");
-            return -2;
-        }
-        if (written == 0)
-        {
-            perror("Ничего не записано в файл");
-            return -3;
-        }
-        total += written;
-        p += written;
-        remaining -= written;
-    }
-    return total;
+    return strlen(shm_block);
 }
 
 //-----------------Потребитель
 
-ssize_t take_item(int filedisc, char *str, size_t max_len)
+ssize_t take_item(char *shm_block, char *str)
 {
-    size_t i = 0;
-    char c;
-    ssize_t r;
-
-    while (i < max_len - 1)
-    {
-        r = read(filedisc, &c, 1);
-        if (r < 0)
-            return -1;
-        if (r == 0)
-            break;
-
-        str[i++] = c;
-        if (c == '\n')
-            break;
-    }
-    str[i] = '\0';
-    return i;
+    strcpy(str, shm_block);
+    return strlen(str);
 }
 
-void consume_item(char *str)
+void consume_item(char *shm_block, char *str)
 {
     int min = INT_MAX, max = INT_MIN;
     char *dup = malloc(strlen(str) + 1);
@@ -139,5 +104,6 @@ void consume_item(char *str)
         token = strtok(NULL, " ");
     }
     printf("Минимум: %d, максимум: %d\n", min, max);
+    snprintf(shm_block, SHM_SIZE, "Минимум: %d, максимум: %d\n", min, max);
     free(dup);
 }

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     // semctl(semid, 0, SETVAL, 1); // mutex = 1
 
     signal(SIGINT, listener_SIGINT);
-    char buff[1024];
+    char buff[SHM_SIZE];
     int flag = 0;
     struct sembuf lock = {0, -1, 0};
     struct sembuf unlock[2] = {{0, 0, 0}, {0, 1, 0}};

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include "factory.h"
@@ -7,28 +8,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <sys/mman.h>
 
 int main(int argc, char *argv[])
 {
     srand(10);
-    char *filename;
-    if (argc == 2)
-    {
-        filename = (char *)malloc(strlen(argv[1]));
-        strcpy(filename, argv[1]);
-    }
-    if (argc == 1)
-    {
-        char tmp_filename[] = "Storage";
-        filename = (char *)malloc(strlen(tmp_filename));
-        strcpy(filename, tmp_filename);
-    }
-    if (argc > 2)
-    {
-        printf("Ошибка. Неверное количество аргументов. Завершение работы.\n");
-        free(filename);
-        return 0;
-    }
+    char filename[] = "SMemory";
 
     sem_t *semap = sem_open(filename, O_CREAT, 0666, 1);
     if (semap == SEM_FAILED)
@@ -36,20 +21,28 @@ int main(int argc, char *argv[])
         perror("sem_open");
         exit(1);
     }
-    int filedesc;
-    filedesc = open(filename, O_RDWR | O_CREAT, 0666);
-
-    if (filedesc == -1)
+    int shm_fd = shm_open(filename, O_RDWR, 0666);
+    if (shm_fd == -1)
     {
-        printf("Не удалось открыть файл.\n");
-        perror("Ошибка открытия");
-        free(filename);
+        perror("shm_open");
         exit(EXIT_FAILURE);
     }
+    if (ftruncate(shm_fd, SHM_SIZE) == -1)
+    {
+        perror("truncate");
+        exit(EXIT_FAILURE);
+    }
+    char *shmaddr = mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (shmaddr == MAP_FAILED)
+    {
+        perror("mmap");
+        exit(EXIT_FAILURE);
+    }
+    close(shm_fd);
     signal(SIGINT, listener_SIGINT);
-    char buff[1024];
+    char buff[SHM_SIZE];
     int flag = 0;
-
+    int counter = 0;
     while (c_wait)
     {
         // printf("Новый цикл\n");
@@ -57,7 +50,7 @@ int main(int argc, char *argv[])
         {
             perror("sem_wait");
         }
-        ssize_t bytes = take_item(filedesc, buff, sizeof(buff));
+        ssize_t bytes = take_item(shmaddr, buff);
         if (bytes < 0)
         {
             printf("Не удалось считать строку!\n");
@@ -82,27 +75,11 @@ int main(int argc, char *argv[])
             sleep(1);
             continue;
         }
-        if (strchr(buff, '!') == NULL)
+        if (strchr(buff, 'и') == NULL)
         {
             // printf("Чтение\n");
-            consume_item(buff);
-            if (lseek(filedesc, -bytes, SEEK_CUR) < 0)
-            {
-                perror("lseek");
-                if (sem_post(semap) == -1)
-                {
-                    perror("sem_post");
-                }
-            }
-            buff[bytes - 2] = '!';
-            if (write(filedesc, buff, bytes) < 0)
-            {
-                perror("write");
-                if (sem_post(semap) == -1)
-                {
-                    perror("sem_post");
-                }
-            }
+            consume_item(shmaddr, buff);
+            counter++;
             sleep(1);
             flag = 0;
         }
@@ -111,12 +88,9 @@ int main(int argc, char *argv[])
             perror("sem_post");
         }
     }
-    free(filename);
-    close(filedesc);
-    int val;
-    sem_getvalue(semap, &val);
-    if (val == 0)
-        sem_post(semap);
+    printf("Всего обработано: %d строк чисел.\n", counter);
+    munmap(shmaddr, SHM_SIZE);
+    sem_post(semap);
     sem_close(semap);
     printf("Работа завершена.\n");
     return 0;
