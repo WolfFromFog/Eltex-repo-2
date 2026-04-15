@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
         if (semop(semid, &lock, 1) == -1)
         {
             perror("semop:lock");
+            exit(EXIT_FAILURE);
         }
 
         ssize_t bytes = take_item(shmaddr, buff);

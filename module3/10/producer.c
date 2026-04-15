@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
         if (semop(semid, &lock, 1) == -1)
         {
             perror("semop:lock");
+            exit(EXIT_FAILURE);
         }
 
         if (put_item(shmaddr, item) < 0)
@@ -88,12 +89,19 @@ int main(int argc, char *argv[])
         }
 
         semop(semid, unlock, 2);
-        sleep(1);
+        sleep(2);
 
         if (semop(semid, &lock, 1) == -1)
         {
             perror("semop:lock");
+            exit(EXIT_FAILURE);
         }
+
+        if (strchr(shmaddr, 'и') != NULL)
+        {
+            printf("%s", shmaddr);
+        }
+
         semop(semid, unlock, 2);
         sleep(1);
         free(item);
@@ -102,6 +110,7 @@ int main(int argc, char *argv[])
     if (shmdt(shmaddr) == -1)
     {
         perror("shmdt");
+        exit(EXIT_FAILURE);
     }
     if (shmctl(shmid, IPC_RMID, NULL) == -1)
     {
@@ -116,7 +125,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
     printf("Удалён семафор (semid=%d)\n", semid);
-    
+
     printf("Работа завершена.\n");
     return 0;
 }
