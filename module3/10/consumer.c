@@ -16,18 +16,26 @@ int main(int argc, char *argv[])
 {
     srand(10);
     char filename[] = "Makefile";
-
     key_t key = ftok(filename, 'F');
-    int semid = semget(key, 1, 0666 | IPC_CREAT);
-    int shmid = shmget(key, 256, IPC_CREAT | IPC_EXCL);
-    if (shmid == -1)
+    if (key == -1)
     {
-        perror("shmget");
+        perror("ftok");
         exit(1);
     }
+    int semid, shmid;
+    semid = semget(key, 1, 0666);
     if (semid == -1)
     {
-        perror("semget");
+        perror("semget (создание)");
+        exit(1);
+    }
+    semctl(semid, 0, SETVAL, 1); // mutex = 1
+
+    shmid = shmget(key, SHM_SIZE, 0666);
+    if (shmid == -1)
+    {
+        perror("shmget (создание)");
+        semctl(semid, 0, IPC_RMID);
         exit(1);
     }
 
@@ -50,9 +58,9 @@ int main(int argc, char *argv[])
         if (bytes < 0)
         {
             printf("Не удалось считать строку!\n");
-            if (shmctl(shmid, IPC_RMID, NULL) == -1)
+            if (shmdt(shmaddr) == -1)
             {
-                perror("shmctl");
+                perror("shmdt");
                 exit(1);
             }
             semop(semid, unlock, 2);
@@ -65,20 +73,23 @@ int main(int argc, char *argv[])
                 printf("Файл обработан. Ожидание новых данных.\n");
                 flag = 1;
             }
-            if (shmctl(shmid, IPC_RMID, NULL) == -1)
+            if (shmdt(shmaddr) == -1)
             {
-                perror("shmctl");
+                perror("shmdt");
                 exit(1);
             }
             semop(semid, unlock, 2);
             sleep(1);
             continue;
         }
-        consume_item(shmaddr, buff);
-        flag = 0;
-        if (shmctl(shmid, IPC_RMID, NULL) == -1)
+        if (strchr(shmaddr, 'и') == NULL)
         {
-            perror("shmctl");
+            consume_item(shmaddr, buff);
+            flag = 0;
+        }
+        if (shmdt(shmaddr) == -1)
+        {
+            perror("shmdt");
             exit(1);
         }
         semop(semid, unlock, 2);

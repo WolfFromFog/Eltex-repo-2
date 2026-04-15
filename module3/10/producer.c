@@ -17,21 +17,57 @@ int main(int argc, char *argv[])
     srand(12);
     char filename[] = "Makefile";
     key_t key = ftok(filename, 'F');
-    int semid = semget(key, 1, 0666 | IPC_CREAT);
-    int shmid = shmget(key, SHM_SIZE, IPC_CREAT | IPC_EXCL | 0666);
-    if (shmid == -1)
+    if (key == -1)
     {
-        perror("shmget");
+        perror("ftok");
         exit(1);
     }
+    int semid, shmid;
+    semid = semget(key, 1, 0666);
+    if (semid != -1)
+    {
+        if (semctl(semid, 0, IPC_RMID) == -1)
+        {
+            perror("semctl (удаление)");
+            exit(1);
+        }
+        printf("Удалён семафор (semid=%d)\n", semid);
+    }
+    else if (errno != ENOENT)
+    {
+        perror("semget (проверка)");
+        exit(1);
+    }
+    shmid = shmget(key, 0, 0666); // размер 0 — не создаём, только проверяем
+    if (shmid != -1)
+    {
+        if (shmctl(shmid, IPC_RMID, NULL) == -1)
+        {
+            perror("shmctl (удаление)");
+            exit(1);
+        }
+        printf("Удалён сегмент памяти (shmid=%d)\n", shmid);
+    }
+    else if (errno != ENOENT)
+    {
+        perror("shmget (проверка)");
+        exit(1);
+    }
+    semid = semget(key, 1, IPC_CREAT | IPC_EXCL | 0666);
     if (semid == -1)
     {
-        perror("semget");
+        perror("semget (создание)");
         exit(1);
     }
-
     semctl(semid, 0, SETVAL, 1); // mutex = 1
 
+    shmid = shmget(key, SHM_SIZE, IPC_CREAT | IPC_EXCL | 0666);
+    if (shmid == -1)
+    {
+        perror("shmget (создание)");
+        semctl(semid, 0, IPC_RMID);
+        exit(1);
+    }
     struct sembuf lock = {0, -1, 0};
     struct sembuf unlock[2] = {{0, 0, 0}, {0, 1, 0}};
 
@@ -39,23 +75,45 @@ int main(int argc, char *argv[])
     while (c_wait)
     {
         char *item = produce_item();
+
         if (semop(semid, &lock, 1) == -1)
         {
             perror("semop:lock");
         }
+
         char *shmaddr = shmat(shmid, NULL, 0);
+
         if (put_item(shmaddr, item) < 0)
         {
             printf("Не удалось записать строку!\n");
         }
-        if (shmctl(shmid, IPC_RMID, NULL) == -1)
+
+        if (shmdt(shmaddr) == -1)
         {
-            perror("shmctl");
-            exit(1);
+            perror("shmdt");
+        }
+
+        semop(semid, unlock, 2);
+        sleep(1);
+
+        if (semop(semid, &lock, 1) == -1)
+        {
+            perror("semop:lock");
+        }
+
+        shmaddr = shmat(shmid, NULL, 0);
+        if (strchr(shmaddr, 'и') != NULL)
+        {
+            printf("%s", shmaddr);
+        }
+
+        if (shmdt(shmaddr) == -1)
+        {
+            perror("shmdt");
         }
         semop(semid, unlock, 2);
-        free(item);
         sleep(1);
+        free(item);
     }
     printf("Работа завершена.\n");
     return 0;
