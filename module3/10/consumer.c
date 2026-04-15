@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     struct sembuf lock = {0, -1, 0};
     struct sembuf unlock[2] = {{0, 0, 0}, {0, 1, 0}};
     char *shmaddr = shmat(shmid, NULL, 0);
+    int counter = 0;
     while (c_wait)
     {
         if (semop(semid, &lock, 1) == -1)
@@ -77,30 +78,18 @@ int main(int argc, char *argv[])
         if (strchr(shmaddr, 'и') == NULL)
         {
             consume_item(shmaddr, buff);
+            counter++;
             flag = 0;
         }
         semop(semid, unlock, 2);
         sleep(1);
     }
-
+    printf("Всего обратано %d строк.\n", counter);
     if (shmdt(shmaddr) == -1)
     {
         perror("shmdt");
         exit(1);
     }
-    if (shmctl(shmid, IPC_RMID, NULL) == -1)
-    {
-        perror("shmctl (удаление)");
-        exit(1);
-    }
-    printf("Удалён сегмент памяти (shmid=%d)\n", shmid);
-
-    if (semctl(semid, 0, IPC_RMID) == -1)
-    {
-        perror("semctl (удаление)");
-        exit(1);
-    }
-    printf("Удалён семафор (semid=%d)\n", semid);
 
     printf("Работа завершена.\n");
     return 0;
