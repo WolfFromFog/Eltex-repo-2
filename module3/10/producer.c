@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
     struct sembuf unlock[2] = {{0, 0, 0}, {0, 1, 0}};
 
     signal(SIGINT, listener_SIGINT);
+    char *shmaddr = shmat(shmid, NULL, 0);
     while (c_wait)
     {
         char *item = produce_item();
@@ -81,16 +82,9 @@ int main(int argc, char *argv[])
             perror("semop:lock");
         }
 
-        char *shmaddr = shmat(shmid, NULL, 0);
-
         if (put_item(shmaddr, item) < 0)
         {
             printf("Не удалось записать строку!\n");
-        }
-
-        if (shmdt(shmaddr) == -1)
-        {
-            perror("shmdt");
         }
 
         semop(semid, unlock, 2);
@@ -100,21 +94,29 @@ int main(int argc, char *argv[])
         {
             perror("semop:lock");
         }
-
-        shmaddr = shmat(shmid, NULL, 0);
-        if (strchr(shmaddr, 'и') != NULL)
-        {
-            printf("%s", shmaddr);
-        }
-
-        if (shmdt(shmaddr) == -1)
-        {
-            perror("shmdt");
-        }
         semop(semid, unlock, 2);
         sleep(1);
         free(item);
     }
+
+    if (shmdt(shmaddr) == -1)
+    {
+        perror("shmdt");
+    }
+    if (shmctl(shmid, IPC_RMID, NULL) == -1)
+    {
+        perror("shmctl (удаление)");
+        exit(1);
+    }
+    printf("Удалён сегмент памяти (shmid=%d)\n", shmid);
+
+    if (semctl(semid, 0, IPC_RMID) == -1)
+    {
+        perror("semctl (удаление)");
+        exit(1);
+    }
+    printf("Удалён семафор (semid=%d)\n", semid);
+    
     printf("Работа завершена.\n");
     return 0;
 }

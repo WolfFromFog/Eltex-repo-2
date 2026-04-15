@@ -39,44 +39,35 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    semctl(semid, 0, SETVAL, 1); // mutex = 1
+    // semctl(semid, 0, SETVAL, 1); // mutex = 1
 
     signal(SIGINT, listener_SIGINT);
     char buff[1024];
     int flag = 0;
     struct sembuf lock = {0, -1, 0};
     struct sembuf unlock[2] = {{0, 0, 0}, {0, 1, 0}};
-
+    char *shmaddr = shmat(shmid, NULL, 0);
     while (c_wait)
     {
         if (semop(semid, &lock, 1) == -1)
         {
             perror("semop:lock");
         }
-        char *shmaddr = shmat(shmid, NULL, 0);
+
         ssize_t bytes = take_item(shmaddr, buff);
         if (bytes < 0)
         {
             printf("Не удалось считать строку!\n");
-            if (shmdt(shmaddr) == -1)
-            {
-                perror("shmdt");
-                exit(1);
-            }
+
             semop(semid, unlock, 2);
             continue;
         }
-        if (bytes == 0)
+        if (bytes == 1)
         {
             if (flag == 0)
             {
                 printf("Файл обработан. Ожидание новых данных.\n");
                 flag = 1;
-            }
-            if (shmdt(shmaddr) == -1)
-            {
-                perror("shmdt");
-                exit(1);
             }
             semop(semid, unlock, 2);
             sleep(1);
@@ -87,14 +78,28 @@ int main(int argc, char *argv[])
             consume_item(shmaddr, buff);
             flag = 0;
         }
-        if (shmdt(shmaddr) == -1)
-        {
-            perror("shmdt");
-            exit(1);
-        }
         semop(semid, unlock, 2);
         sleep(1);
     }
+
+    if (shmdt(shmaddr) == -1)
+    {
+        perror("shmdt");
+        exit(1);
+    }
+    if (shmctl(shmid, IPC_RMID, NULL) == -1)
+    {
+        perror("shmctl (удаление)");
+        exit(1);
+    }
+    printf("Удалён сегмент памяти (shmid=%d)\n", shmid);
+
+    if (semctl(semid, 0, IPC_RMID) == -1)
+    {
+        perror("semctl (удаление)");
+        exit(1);
+    }
+    printf("Удалён семафор (semid=%d)\n", semid);
 
     printf("Работа завершена.\n");
     return 0;
