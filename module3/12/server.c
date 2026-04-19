@@ -58,7 +58,7 @@ int main()
         {
             continue;
         }
-
+        printf("Recived message: %s\n", line);
         int is_client1 = (client1_set && memcmp(&cliaddr, &client_1, sizeof(cliaddr)) == 0);
         int is_client2 = (client2_set && memcmp(&cliaddr, &client_2, sizeof(cliaddr)) == 0);
 
