@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[])
 {
-    int sockfd;                           /* Дескриптор сокета */
+    // int sockfd;                           /* Дескриптор сокета */
     int n, len;                           /* Переменные для различных длин и количества символов */
     char sendline[1000], recvline[1000];  /* Массивы для отсылаемой и принятой строки */
     struct sockaddr_in servaddr, cliaddr; /* Структуры для адресов сервера и клиента */
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     signal(SIGINT, listener_SIGINT);
-    while (c_wait)
+    while (1)
     {
         printf("String => ");
         fgets(sendline, 1000, stdin);

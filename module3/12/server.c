@@ -13,7 +13,7 @@
 
 int main()
 {
-    int sockfd;                           // Дексриптор сокета
+    // int sockfd;                           // Дексриптор сокета
     int clilen, n;                        // Переменные для различных длин и количества символов
     char line[1000];                      // Массив для принятой и отсылаемой строки
     struct sockaddr_in servaddr, cliaddr; // Структуры для адресов сервера и клиента
@@ -40,7 +40,7 @@ int main()
     }
     // Основной цикл обслуживания
     signal(SIGINT, listener_SIGINT);
-    while (c_wait)
+    while (1)
     {
         clilen = sizeof(cliaddr);
         // waiting
