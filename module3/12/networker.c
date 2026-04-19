@@ -19,7 +19,7 @@ void sender(int sockfd, struct sockaddr_in *servaddr)
     char line[1000];
     while (fgets(line, 1000, stdin) != NULL)
     {
-        sendto(sockfd, line, strlen(line), 0, (struct sockaddr *)servaddr, sizeof(servaddr));
+        sendto(sockfd, line, strlen(line), 0, (struct sockaddr *)servaddr, sizeof(*servaddr));
     }
     close(sockfd);
     exit(EXIT_SUCCESS);
@@ -43,7 +43,7 @@ void recvier(int sockfd)
         {
             line[n] = '\0';
             printf("\r%s\n", line);
-            printf("String => ");
+            printf("=> ");
             fflush(stdout);
         }
     }
