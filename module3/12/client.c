@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <strings.h>
+#include "networker.h"
+#include <signal.h>
 
 int main(int argc, char *argv[])
 {
@@ -55,25 +57,29 @@ int main(int argc, char *argv[])
         close(sockfd);
         exit(EXIT_FAILURE);
     }
-    printf("String => ");
-    fgets(sendline, 1000, stdin);
-    // sending
-    if (sendto(sockfd, sendline, strlen(sendline) + 1, 0,
-               (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+    signal(SIGINT, listener_SIGINT);
+    while (c_wait)
     {
-        perror(NULL);
-        close(sockfd);
-        exit(EXIT_FAILURE);
-    }
-    // reciving
-    if ((n = recvfrom(sockfd, recvline, 1000, 0, (struct sockaddr *)NULL, NULL)) < 0)
-    {
-        perror(NULL);
-        close(sockfd);
-        exit(EXIT_FAILURE);
+        printf("String => ");
+        fgets(sendline, 1000, stdin);
+        // sending
+        if (sendto(sockfd, sendline, strlen(sendline) + 1, 0,
+                   (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+        {
+            perror(NULL);
+            close(sockfd);
+            exit(EXIT_FAILURE);
+        }
+        // reciving
+        if ((n = recvfrom(sockfd, recvline, 1000, 0, (struct sockaddr *)NULL, NULL)) < 0)
+        {
+            perror(NULL);
+            close(sockfd);
+            exit(EXIT_FAILURE);
+        }
+        printf("%s\n", recvline);
     }
 
-    printf("%s\n", recvline);
     close(sockfd);
     return 0;
 }

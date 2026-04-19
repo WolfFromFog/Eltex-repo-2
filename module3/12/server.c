@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include "networker.h"
+#include <signal.h>
 
 int main()
 {
@@ -37,7 +39,8 @@ int main()
         exit(EXIT_FAILURE);
     }
     // Основной цикл обслуживания
-    while (1)
+    signal(SIGINT, listener_SIGINT);
+    while (c_wait)
     {
         clilen = sizeof(cliaddr);
         // waiting
@@ -47,15 +50,17 @@ int main()
             close(sockfd);
             exit(1);
         }
-
-        printf("%s\n", line);
-
-        if (sendto(sockfd, line, strlen(line), 0,
-                   (struct sockaddr *)&cliaddr, clilen) < 0)
+        if (strlen(line) > 0)
         {
-            perror(NULL);
-            close(sockfd);
-            exit(EXIT_FAILURE);
+            printf("%s\n", line);
+
+            if (sendto(sockfd, line, strlen(line), 0,
+                       (struct sockaddr *)&cliaddr, clilen) < 0)
+            {
+                perror(NULL);
+                close(sockfd);
+                exit(EXIT_FAILURE);
+            }
         }
     }
     return 0;
