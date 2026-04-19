@@ -10,11 +10,11 @@
 #include <strings.h>
 #include "networker.h"
 #include <signal.h>
-#include <pthread.h>
+#include <sys/wait.h>
 
 int main(int argc, char *argv[])
 {
-    
+
     struct sockaddr_in servaddr, cliaddr; /* Структуры для адресов сервера и клиента */
     pid_t pid;
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
     if ((sockfd = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
     {
-        perror(NULL);
+        perror("socket");
         exit(EXIT_FAILURE);
     }
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     // Настройка адреса клиента
     if (bind(sockfd, (struct sockaddr *)&cliaddr, sizeof(cliaddr)) < 0)
     {
-        perror(NULL);
+        perror("bind");
         close(sockfd);
         exit(EXIT_FAILURE);
     }
@@ -58,7 +58,14 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     signal(SIGINT, listener_SIGINT);
-
+    char msg[] = "Registartion";
+    if (sendto(sockfd, msg, strlen(msg), 0,
+               (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+    {
+        perror("sendto registr");
+        close(sockfd);
+        exit(EXIT_FAILURE);
+    }
     pid = fork();
     if (pid == 0)
     {
@@ -66,16 +73,9 @@ int main(int argc, char *argv[])
     }
     else
     {
-        char msg[] = "Registartion";
-        if (sendto(sockfd, msg, strlen(msg) + 1, 0,
-                   (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
-        {
-            perror(NULL);
-            close(sockfd);
-            exit(EXIT_FAILURE);
-        }
         sender(sockfd, &servaddr);
         kill(pid, SIGTERM);
+        wait(NULL);
     }
     return 0;
 }

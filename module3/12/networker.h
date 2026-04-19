@@ -2,6 +2,7 @@
 #define NETWORKER_H
 
 #include <sys/socket.h>
+#include <netinet/in.h>
 
 extern int c_wait;
 extern int sockfd;

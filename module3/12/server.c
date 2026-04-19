@@ -7,7 +7,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
 #include "networker.h"
 #include <signal.h>
 
@@ -50,7 +49,7 @@ int main()
         // waiting
         if ((n = recvfrom(sockfd, line, 999, 0, (struct sockaddr *)&cliaddr, &clilen)) < 0)
         {
-            perror(NULL);
+            perror("recvfrom");
             close(sockfd);
             exit(1);
         }
@@ -79,6 +78,7 @@ int main()
                 client2_set = 1;
                 printf("Client 2 registered: %s:%d\n",
                        inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+                printf("Both registed\n");
                 continue;
             }
         }
