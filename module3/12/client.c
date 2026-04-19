@@ -10,13 +10,13 @@
 #include <strings.h>
 #include "networker.h"
 #include <signal.h>
+#include <pthread.h>
 
 int main(int argc, char *argv[])
 {
-    // int sockfd;                           /* Дескриптор сокета */
-    int n, len;                           /* Переменные для различных длин и количества символов */
-    char sendline[1000], recvline[1000];  /* Массивы для отсылаемой и принятой строки */
+    
     struct sockaddr_in servaddr, cliaddr; /* Структуры для адресов сервера и клиента */
+    pid_t pid;
 
     if (argc != 2)
     {
@@ -58,28 +58,24 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     signal(SIGINT, listener_SIGINT);
-    while (1)
+
+    pid = fork();
+    if (pid == 0)
     {
-        printf("String => ");
-        fgets(sendline, 1000, stdin);
-        // sending
-        if (sendto(sockfd, sendline, strlen(sendline) + 1, 0,
+        recvier(sockfd);
+    }
+    else
+    {
+        char msg[] = "Registartion";
+        if (sendto(sockfd, msg, strlen(msg) + 1, 0,
                    (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
         {
             perror(NULL);
             close(sockfd);
             exit(EXIT_FAILURE);
         }
-        // reciving
-        if ((n = recvfrom(sockfd, recvline, 1000, 0, (struct sockaddr *)NULL, NULL)) < 0)
-        {
-            perror(NULL);
-            close(sockfd);
-            exit(EXIT_FAILURE);
-        }
-        printf("%s\n", recvline);
+        sender(sockfd, &servaddr);
+        kill(pid, SIGTERM);
     }
-
-    close(sockfd);
     return 0;
 }
