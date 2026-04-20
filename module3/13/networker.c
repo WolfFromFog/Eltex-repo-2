@@ -13,7 +13,7 @@ int nclients = 0;
 void error(const char *msg)
 {
     perror(msg);
-    exit(EXIT_SUCCESS);
+    exit(EXIT_FAILURE);
 }
 
 void dostuff(int sock)
@@ -25,7 +25,7 @@ void dostuff(int sock)
 #define str2 "Enter 2 parameter\r\n"
 
     // отправляем клиенту сообщение
-    write(sock, str1, sizeof(str1));
+    write(sock, str1, strlen(str1));
 
     // обработка первого параметра
     bytes_recv = read(sock, buff, sizeof(buff));
@@ -34,7 +34,7 @@ void dostuff(int sock)
     a = atoi(buff); // преобразование первого параметра в int
 
     // отправляем клиенту сообщение
-    write(sock, str2, sizeof(str2));
+    write(sock, str2, strlen(str2));
     bytes_recv = read(sock, buff, sizeof(buff));
     if (bytes_recv < 0)
         error("ERROR reading from socket");
@@ -44,7 +44,7 @@ void dostuff(int sock)
     snprintf(buff, strlen(buff), "%d", a); // преобразование результата в строку
     buff[strlen(buff)] = '\n';             // добавление к сообщению символа конца строки
     // отправляем клиенту результат
-    write(sock, &buff[0], sizeof(buff));
+    write(sock, buff, strlen(buff));
     nclients--; // уменьшаем счетчик активных клиентов
     printf("-disconnect\n");
     printusers();
