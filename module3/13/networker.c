@@ -7,9 +7,10 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <limits.h>
+#include <sys/sem.h>
 
 // количество активных пользователей
-int nclients = 0;
+int nclients;
 
 void error(const char *msg)
 {
@@ -22,6 +23,10 @@ void dostuff(int sock)
     int bytes_recv;    // размер принятого сообщения
     int a, b, opr = 0; // переменные для myfunc
     char buff[20 * 1024];
+
+    // struct sembuf increas = {0, 1, 0};
+    struct sembuf decreas = {0, -1, 0};
+
 #define str0 "Enter operation: add/sum/mult/div\r\n"
 #define str1 "Enter 1 parameter\r\n"
 #define str2 "Enter 2 parameter\r\n"
@@ -32,6 +37,8 @@ void dostuff(int sock)
     bytes_recv = read(sock, buff, sizeof(buff));
     if (bytes_recv < 0)
         error("ERROR reading from socket");
+
+    buff[bytes_recv] = '\0';
 
     if (strstr(buff, "add"))
     {
@@ -65,6 +72,7 @@ void dostuff(int sock)
     bytes_recv = read(sock, buff, sizeof(buff));
     if (bytes_recv < 0)
         error("ERROR reading from socket");
+    buff[bytes_recv] = '\0';
     a = atoi(buff); // преобразование первого параметра в int
 
     // отправляем клиенту сообщение
@@ -72,29 +80,31 @@ void dostuff(int sock)
     bytes_recv = read(sock, buff, sizeof(buff));
     if (bytes_recv < 0)
         error("ERROR reading from socket");
+    buff[bytes_recv] = '\0';
     b = atoi(buff); // преобразование второго параметра в int
 
     // вызов пользовательской функции
     // memset(buff, 0, sizeof(buff));
+    int len = 0;
     switch (opr)
     {
     case 1:
         a = myadd(a, b);
-        snprintf(buff, strlen(buff), "%d", a);
+        len = snprintf(buff, sizeof(buff), "%d", a);
         break;
     case 2:
         a = mysub(a, b);
-        snprintf(buff, strlen(buff), "%d", a);
+        len = snprintf(buff, sizeof(buff), "%d", a);
         break;
     case 3:
         a = mymult(a, b);
-        snprintf(buff, strlen(buff), "%d", a);
+        len = snprintf(buff, sizeof(buff), "%d", a);
         break;
     case 4:
         a = mydiv(a, b);
         if (a != INT_MIN)
         {
-            snprintf(buff, strlen(buff), "%d", a);
+            len = snprintf(buff, sizeof(buff), "%d", a);
         }
         else
         {
@@ -107,11 +117,23 @@ void dostuff(int sock)
         break;
     }
 
-    buff[strlen(buff)] = '\n'; // добавление к сообщению символа конца строки
-    // отправляем клиенту результат
-    write(sock, buff, strlen(buff));
+    // buff[strlen(buff)] = '\n'; // добавление к сообщению символа конца строки
+    //  отправляем клиенту результат
+    if (len < 0 || len >= sizeof(buff))
+    {
+        printf("Error\n");
+    }
+    else
+    {
+        write(sock, buff, strlen(buff));
+    }
+    sleep(0.5);
     strcpy(buff, "quit\n");
     write(sock, buff, strlen(buff));
+    if (semop(nclients, &decreas, 1) == -1)
+    {
+        perror("semop: decreas");
+    }
     nclients--; // уменьшаем счетчик активных клиентов
     printf("-disconnect\n");
     printusers();

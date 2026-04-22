@@ -52,29 +52,54 @@ int main(int argc, char *argv[])
     {
         error("ERROR connecting");
     }
-    int counter = 0;
+    // int counter = 0;
     // step 3 - reading and sending msgs
-    while ((n = recv(my_sock, buff, sizeof(buff) - 1, 0)) > 0 || counter < 3)
+    for (int i = 0; i < 3; i++)
     {
-        buff[n] = '\0';
-
-        printf("S=>C:%s\n", buff);
-        printf("S<=C:");
-        fgets(buff, sizeof(buff) - 1, stdin);
-
-        if (!strcmp(buff, "quit\n"))
+        n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+        if (n <= 0)
         {
-            printf("Exit...");
+            printf("Connection lost or erro\n");
+            close(my_sock);
+            return -1;
+        }
+
+        buff[n] = '\0';
+        printf("S=>C:%s", buff);
+
+        if (strstr(buff, "quit") != NULL)
+        {
             close(my_sock);
             return 0;
         }
 
+        printf("S<=C:");
+        if (fgets(buff, sizeof(buff) - 1, stdin) == NULL)
+        {
+            printf("Input error\n");
+            close(my_sock);
+            return -1;
+        }
         send(my_sock, buff, strlen(buff), 0);
-        counter++;
+    }
+    n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+    if (n <= 0)
+    {
+        printf("Failed to reciev result\n");
+        close(my_sock);
+        return -1;
     }
 
-    printf("Recv error \n");
-    close(my_sock);
+    buff[n] = '\0';
+    printf("S=>C (result): %s", buff);
 
-    return -1;
+    n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+    if (n > 0)
+    {
+        buff[n] = '\0';
+        printf("\nS=>C: %s", buff);
+    }
+
+    close(my_sock);
+    return 0;
 }

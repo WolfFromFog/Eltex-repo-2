@@ -8,15 +8,21 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <sys/sem.h>
 
 int main(int argc, char *argv[])
 {
-    char buff[1024];                        // Буфер для различных нужд
+    // char buff[1024];                        // Буфер для различных нужд
     int sockfd, newsockfd;                  // дескрипторы сокетов
     int portno;                             // номер порта
     int pid;                                // id номер потока
     socklen_t clilen;                       // размер адреса клиента типа socklen_t
     struct sockaddr_in serv_addr, cli_addr; // структура сокета сервера и клиента
+
+    key_t semkey = ftok("server", 'S');
+    struct sembuf increas = {0, 1, 0};
+
+    nclients = semget(semkey, 1, 0666 | IPC_CREAT);
 
     printf("TCP SERVER DEMO\n");
 
@@ -45,14 +51,17 @@ int main(int argc, char *argv[])
     // Шаг 3 - ожидание подключений, размер очереди - 5
     listen(sockfd, 5);
     clilen = sizeof(cli_addr);
-
-    // Шаг 4 - извлекаем сообщение из очереди (цикл извлечения запросов на подключение)
+    // Семафор с
+    //  Шаг 4 - извлекаем сообщение из очереди (цикл извлечения запросов на подключение)
     while (1)
     {
         newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
         if (newsockfd < 0)
             error("ERROR on accept");
-        nclients++;
+        if (semop(nclients, &increas, 1) == -1)
+        {
+            perror("semop: increas");
+        }
         // вывод сведений о клиенте
         struct hostent *hst;
         hst = gethostbyaddr((char *)&cli_addr.sin_addr, 4, AF_INET);
@@ -70,8 +79,11 @@ int main(int argc, char *argv[])
             exit(0);
         }
         else
+        {
             close(newsockfd);
+        } 
     }
+    semctl(nclients, 0, IPC_RMID);
     close(sockfd);
     return 0;
 }
