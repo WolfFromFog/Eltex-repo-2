@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
     {
         error("ERROR connecting");
     }
-
+    int counter = 0;
     // step 3 - reading and sending msgs
-    while ((n = recv(my_sock, buff, sizeof(buff) - 1, 0)) > 0)
+    while ((n = recv(my_sock, buff, sizeof(buff) - 1, 0)) > 0 || counter < 3)
     {
         buff[n] = '\0';
 
@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
         }
 
         send(my_sock, buff, strlen(buff), 0);
+        counter++;
     }
 
     printf("Recv error \n");

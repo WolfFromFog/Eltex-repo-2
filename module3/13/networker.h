@@ -10,7 +10,14 @@ void error(const char *msg);
 // подключившихся пользователей
 void dostuff(int);
 void printusers();
-// функция обработки данных
-int myfunc(int a, int b);
+// функции
+// сумма
+int myadd(int a, int b);
+// разность
+int mysub(int a, int b);
+// произведение
+int mymult(int a, int b);
+// частное
+int mydiv(int a, int b);
 
 #endif
