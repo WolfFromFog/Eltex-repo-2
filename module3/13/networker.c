@@ -75,6 +75,7 @@ void dostuff(int sock)
     b = atoi(buff); // преобразование второго параметра в int
 
     // вызов пользовательской функции
+    // memset(buff, 0, sizeof(buff));
     switch (opr)
     {
     case 1:
