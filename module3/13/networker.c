@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <sys/sem.h>
+#include <signal.h>
 
 // количество активных пользователей
 int nclients;
@@ -134,7 +135,7 @@ void dostuff(int sock)
     {
         perror("semop: decreas");
     }
-    nclients--; // уменьшаем счетчик активных клиентов
+    // nclients--; // уменьшаем счетчик активных клиентов
     printf("-disconnect\n");
     printusers();
     return;
@@ -142,9 +143,15 @@ void dostuff(int sock)
 
 void printusers()
 {
-    if (nclients > 0)
+    int val = semctl(nclients, 0, GETVAL);
+    if (val == -1)
     {
-        printf("%d user online\n", nclients);
+        perror("semctl GETVAL");
+        return;
+    }
+    if (val > 0)
+    {
+        printf("%d user online\n", val);
     }
     else
     {
@@ -178,4 +185,9 @@ int mydiv(int a, int b)
     }
 
     return a / b;
+}
+
+void signaler(int sig)
+{
+    semctl(nclients, 0, IPC_RMID);
 }

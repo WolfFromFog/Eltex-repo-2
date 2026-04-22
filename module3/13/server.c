@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/sem.h>
+#include <signal.h>
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +24,9 @@ int main(int argc, char *argv[])
     struct sembuf increas = {0, 1, 0};
 
     nclients = semget(semkey, 1, 0666 | IPC_CREAT);
+    union semun sem_union;
+    sem_union.val = 0;
+    semctl(nclients, 0, SETVAL, sem_union);
 
     printf("TCP SERVER DEMO\n");
 
@@ -53,6 +57,7 @@ int main(int argc, char *argv[])
     clilen = sizeof(cli_addr);
     // Семафор с
     //  Шаг 4 - извлекаем сообщение из очереди (цикл извлечения запросов на подключение)
+    signal(SIGINT, signaler);
     while (1)
     {
         newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
@@ -81,7 +86,7 @@ int main(int argc, char *argv[])
         else
         {
             close(newsockfd);
-        } 
+        }
     }
     semctl(nclients, 0, IPC_RMID);
     close(sockfd);

@@ -29,4 +29,6 @@ union semun
     struct seminfo *__buf; /* буфер для IPC_INFO */
 };
 
+void signaler(int sig);
+
 #endif
