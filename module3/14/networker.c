@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <netinet/ip.h>
+#include <netinet/udp.h>
+#include <arpa/inet.h>
 
 int c_wait = 1;
 int sockfd; // сокет
@@ -49,4 +52,41 @@ void recvier(int sockfd)
     }
     close(sockfd);
     exit(EXIT_SUCCESS);
+}
+
+void process_packet(unsigned char *buffer, int size)
+{
+    struct iphdr *ip_header = (struct iphdr *)buffer;
+    unsigned short ip_header_len = ip_header->ihl * 4;
+
+    struct udphdr *udp_header = (struct udphdr *)(buffer + ip_header_len);
+
+    int src_port = ntohs(udp_header->source);
+    int dst_port = ntohs(udp_header->dest);
+
+    // Фильтрация по порту
+    if (dst_port == TARGET_PORT)
+    {
+        struct sockaddr_in source, dest;
+        source.sin_addr.s_addr = ip_header->saddr;
+        dest.sin_addr.s_addr = ip_header->daddr;
+
+        printf("\n%s:%d -> %s:%d\n",
+               inet_ntoa(source.sin_addr), src_port,
+               inet_ntoa(dest.sin_addr), dst_port);
+
+        // Печатаем payload
+        unsigned char *payload = buffer + ip_header_len + sizeof(struct udphdr);
+        int payload_len = size - (ip_header_len + sizeof(struct udphdr));
+
+        if (payload_len > 0)
+        {
+            printf("Данные (%d байт): ", payload_len);
+            for (int i = 0; i < payload_len && i < 50; i++)
+            {
+                printf("%02x ", payload[i]);
+            }
+            printf("\n");
+        }
+    }
 }

@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     // Структура адреса сервера
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(51000);
+    servaddr.sin_port = htons(TARGET_PORT);
     // Настройка адреса сервера
     if (inet_aton(argv[1], &servaddr.sin_addr) == 0)
     {

@@ -23,7 +23,7 @@ int main()
     // server addr struct
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(51000);
+    servaddr.sin_port = htons(TARGET_PORT);
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     // UDP socket
