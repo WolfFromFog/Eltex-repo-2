@@ -10,29 +10,41 @@
 #include <arpa/inet.h>
 
 int c_wait = 1;
-int sockfd; // сокет
+int sockfd = -1; // сокет
 
 void listener_SIGINT(int sig)
 {
-    _exit(EXIT_SUCCESS);
+    c_wait = 0;
+    if (sockfd > 0)
+    {
+        close(sockfd);
+        sockfd = -1;
+    }
 }
 
 void sender(int sockfd, struct sockaddr_in *servaddr)
 {
     char line[1000];
-    while (fgets(line, 1000, stdin) != NULL)
+    while (c_wait)
     {
-        sendto(sockfd, line, strlen(line), 0, (struct sockaddr *)servaddr, sizeof(*servaddr));
+        if (fgets(line, 1000, stdin) != NULL)
+        {
+            sendto(sockfd, line, strlen(line), 0, (struct sockaddr *)servaddr, sizeof(*servaddr));
+        }
+        else
+        {
+            break;
+        }
     }
-    close(sockfd);
-    exit(EXIT_SUCCESS);
+    // close(sockfd);
+    // exit(EXIT_SUCCESS);
 }
 
 void recvier(int sockfd)
 {
     char line[1000];
     int n;
-    while (1)
+    while (c_wait)
     {
         n = recvfrom(sockfd, line, 999, 0, NULL, NULL);
         if (n < 0)
@@ -50,8 +62,8 @@ void recvier(int sockfd)
             fflush(stdout);
         }
     }
-    close(sockfd);
-    exit(EXIT_SUCCESS);
+    // close(sockfd);
+    // exit(EXIT_SUCCESS);
 }
 
 void process_packet(unsigned char *buffer, int size)
@@ -84,7 +96,14 @@ void process_packet(unsigned char *buffer, int size)
             printf("Данные (%d байт): ", payload_len);
             for (int i = 0; i < payload_len && i < 50; i++)
             {
-                printf("%02x ", payload[i]);
+                if (payload[i] >= 32 && payload[i] <= 126)
+                {
+                    printf("%c", payload[i]);
+                }
+                else
+                {
+                    printf("%02x ", payload[i]);
+                }
             }
             printf("\n");
         }

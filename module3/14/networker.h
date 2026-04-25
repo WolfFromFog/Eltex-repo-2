@@ -9,6 +9,7 @@
 extern int c_wait;
 extern int sockfd;
 
+
 void listener_SIGINT(int sig);
 
 void sender(int sockfd, struct sockaddr_in *servaddr);

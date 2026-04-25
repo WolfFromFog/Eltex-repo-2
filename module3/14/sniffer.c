@@ -7,8 +7,7 @@
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include "networker.h"
-
-
+#include <signal.h>
 
 int main()
 {
@@ -25,8 +24,8 @@ int main()
     }
 
     printf("Ловля пакетов на порту %d...\n", TARGET_PORT);
-
-    while (1)
+    signal(SIGINT, listener_SIGINT);
+    while (c_wait)
     {
         int data_size = recvfrom(sockfd, buffer, 65536, 0, NULL, NULL);
         if (data_size < 0)
@@ -41,4 +40,3 @@ int main()
     free(buffer);
     return 0;
 }
-

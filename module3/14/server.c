@@ -43,7 +43,7 @@ int main()
     // Основной цикл обслуживания
     signal(SIGINT, listener_SIGINT);
     printf("Server started. Waiting for clients...\n");
-    while (1)
+    while (c_wait)
     {
         clilen = sizeof(cliaddr);
         // waiting

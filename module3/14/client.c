@@ -70,12 +70,21 @@ int main(int argc, char *argv[])
     if (pid == 0)
     {
         recvier(sockfd);
+        exit(EXIT_SUCCESS);
     }
     else
     {
         sender(sockfd, &servaddr);
-        kill(pid, SIGTERM);
-        wait(NULL);
+        if (pid > 0)
+        {
+            kill(pid, SIGTERM);
+            wait(NULL);
+        }
     }
+    if (sockfd >= 0)
+    {
+        close(sockfd);
+    }
+
     return 0;
 }
