@@ -13,6 +13,7 @@ int main()
 {
     // int raw_socket;
     unsigned char *buffer = (unsigned char *)malloc(65536);
+    const char *dump_filename = "udp_dump.bin";
 
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
     if (sockfd < 0)
@@ -24,6 +25,7 @@ int main()
     }
 
     printf("Ловля пакетов на порту %d...\n", TARGET_PORT);
+    init_dump(dump_filename);
     signal(SIGINT, listener_SIGINT);
     while (c_wait)
     {
@@ -35,7 +37,7 @@ int main()
         }
         process_packet(buffer, data_size);
     }
-
+    close_dump();
     close(sockfd);
     free(buffer);
     return 0;

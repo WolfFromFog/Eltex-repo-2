@@ -8,9 +8,11 @@
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 int c_wait = 1;
 int sockfd = -1; // сокет
+FILE *dump_file = NULL;
 
 void listener_SIGINT(int sig)
 {
@@ -106,6 +108,57 @@ void process_packet(unsigned char *buffer, int size)
                 }
             }
             printf("\n");
+            write_to_dump(payload, payload_len, inet_ntoa(source.sin_addr), src_port,
+                          inet_ntoa(dest.sin_addr), dst_port);
         }
     }
+}
+
+void init_dump(const char *filename)
+{
+    dump_file = fopen(filename, "wb");
+    if (dump_file == NULL)
+    {
+        perror("Не удалось создать дампа");
+    }
+    else
+    {
+        time_t now = time(NULL);
+        fprintf(dump_file, "# UDP Dump Started: %s", ctime(&now));
+        fprintf(dump_file, "# Target port: %d\n", TARGET_PORT);
+        fflush(dump_file);
+    }
+}
+
+void close_dump(void)
+{
+    if (dump_file != NULL)
+    {
+        time_t now = time(NULL);
+        fprintf(dump_file, "# UDP Dump Finished: %s", ctime(&now));
+        fclose(dump_file);
+        dump_file = NULL;
+        printf("Файл дампа закрыт\n");
+    }
+}
+
+void write_to_dump(const unsigned char *data, int len,
+                   const char *src_ip, int src_port,
+                   const char *dst_ip, int dst_port)
+{
+    if (dump_file == NULL)
+        return;
+
+    // Записываем метаданные пакета
+    time_t now = time(NULL);
+    struct tm *tm_info = localtime(&now);
+    char time_buf[64];
+    strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", tm_info);
+
+    fprintf(dump_file, "\n[%s] %s:%d -> %s:%d (%d bytes)\n",
+            time_buf, src_ip, src_port, dst_ip, dst_port, len);
+
+    // Записываем бинарные данные
+    fwrite(data, 1, len, dump_file);
+    fflush(dump_file);
 }
