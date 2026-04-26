@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/sem.h>
 #include <signal.h>
+#include <sys/select.h>
 
 int main(int argc, char *argv[])
 {
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
     int pid;                                // id номер потока
     socklen_t clilen;                       // размер адреса клиента типа socklen_t
     struct sockaddr_in serv_addr, cli_addr; // структура сокета сервера и клиента
+    fd_set master, read_fds;                // файловые дескрипторы
 
     key_t semkey = ftok("server", 'S');
     struct sembuf increas = {0, 1, 0};
@@ -55,25 +57,57 @@ int main(int argc, char *argv[])
     // Шаг 3 - ожидание подключений, размер очереди - 5
     listen(sockfd, 5);
     clilen = sizeof(cli_addr);
+
+    // Очистка десрипторов
+    FD_ZERO(&master);
+    FD_ZERO(&read_fds);
+
+    FD_SET(sockfd, &master);
+    int FD_MAX = sockfd;
     // Семафор с
     //  Шаг 4 - извлекаем сообщение из очереди (цикл извлечения запросов на подключение)
     signal(SIGINT, signaler);
     while (1)
     {
-        newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
-        if (newsockfd < 0)
-            error("ERROR on accept");
-        if (semop(nclients, &increas, 1) == -1)
+        read_fds = master;
+        select(FD_MAX + 1, &read_fds, NULL, NULL, NULL);
+
+        for (int i = 0; i <= FD_MAX; i++)
         {
-            perror("semop: increas");
+            if (FD_ISSET(i, &read_fds))
+            {
+                if (i == sockfd)
+                {
+                    newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+                    if (newsockfd < 0)
+                        error("ERROR on accept");
+                    if (semop(nclients, &increas, 1) == -1)
+                    {
+                        perror("semop: increas");
+                    }
+                    // вывод сведений о клиенте
+                    struct hostent *hst;
+                    hst = gethostbyaddr((char *)&cli_addr.sin_addr, 4, AF_INET);
+                    printf("+%s [%s] new connect!\n",
+                           (hst) ? hst->h_name : "Unknown host",
+                           (char *)inet_ntoa(cli_addr.sin_addr));
+                    printusers();
+                    FD_SET(newsockfd, &master);
+                    if (newsockfd > FD_MAX)
+                    {
+                        FD_MAX = newsockfd;
+                    }
+                }
+                else
+                {
+                    dostuff(newsockfd);
+                    close(i);
+                    FD_CLR(i, &master);
+                    close(newsockfd);
+                }
+            }
         }
-        // вывод сведений о клиенте
-        struct hostent *hst;
-        hst = gethostbyaddr((char *)&cli_addr.sin_addr, 4, AF_INET);
-        printf("+%s [%s] new connect!\n",
-               (hst) ? hst->h_name : "Unknown host",
-               (char *)inet_ntoa(cli_addr.sin_addr));
-        printusers();
+        /*
         pid = fork();
         if (pid < 0)
             error("ERROR on fork");
@@ -87,6 +121,7 @@ int main(int argc, char *argv[])
         {
             close(newsockfd);
         }
+        */
     }
     semctl(nclients, 0, IPC_RMID);
     close(sockfd);
