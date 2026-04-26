@@ -1,7 +1,11 @@
 #ifndef NETWORKER_H
 #define NETWORKER_H
 
+#include <sys/select.h>
+
 extern int nclients;
+
+extern fd_set master;
 
 // Обработчек ошибок
 void error(const char *msg);
@@ -30,5 +34,26 @@ union semun
 };
 
 void signaler(int sig);
+
+void set_nonblocking(int sock);
+
+#define STATE_GET_OP 0   // ожидаем операцию (add/sum/mult/div)
+#define STATE_GET_A 1    // ожидаем первое число
+#define STATE_GET_B 2    // ожидаем второе число
+#define STATE_SEND_RES 3 // отправляем результат
+#define STATE_QUIT 4     // завершаем соединение
+
+typedef struct
+{
+    int state;
+    int a, b, opr;
+    char buffer[1024];  // буфер на вход
+    int buf_len;        // сколько байт уже в буфере
+    char out_buf[1024]; // бфуер на выход
+    int out_len;
+    int out_sent; // сколько уже отправлено
+} client_state_t;
+
+
 
 #endif

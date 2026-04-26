@@ -15,12 +15,12 @@
 int main(int argc, char *argv[])
 {
     // char buff[1024];                        // Буфер для различных нужд
-    int sockfd, newsockfd;                  // дескрипторы сокетов
-    int portno;                             // номер порта
-    int pid;                                // id номер потока
-    socklen_t clilen;                       // размер адреса клиента типа socklen_t
-    struct sockaddr_in serv_addr, cli_addr; // структура сокета сервера и клиента
-    fd_set master, read_fds;                // файловые дескрипторы
+    int sockfd, newsockfd; // дескрипторы сокетов
+    int portno;            // номер порта
+    // int pid;                                // id номер потока
+    socklen_t clilen;                         // размер адреса клиента типа socklen_t
+    struct sockaddr_in serv_addr, cli_addr;   // структура сокета сервера и клиента
+    fd_set read_fds, write_fds, master_write; // файловые дескрипторы
 
     key_t semkey = ftok("server", 'S');
     struct sembuf increas = {0, 1, 0};
@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
     // Очистка десрипторов
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
+    FD_ZERO(&write_fds);
+    FD_ZERO(&master_write);
 
     FD_SET(sockfd, &master);
     int FD_MAX = sockfd;
@@ -70,7 +72,9 @@ int main(int argc, char *argv[])
     while (1)
     {
         read_fds = master;
-        select(FD_MAX + 1, &read_fds, NULL, NULL, NULL);
+        write_fds = master_write;
+
+        select(FD_MAX + 1, &read_fds, &write_fds, NULL, NULL);
 
         for (int i = 0; i <= FD_MAX; i++)
         {
@@ -79,6 +83,7 @@ int main(int argc, char *argv[])
                 if (i == sockfd)
                 {
                     newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+                    set_nonblocking(newsockfd);
                     if (newsockfd < 0)
                         error("ERROR on accept");
                     if (semop(nclients, &increas, 1) == -1)
@@ -100,11 +105,15 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    dostuff(newsockfd);
-                    close(i);
-                    FD_CLR(i, &master);
-                    close(newsockfd);
+                    dostuff(i);
+                    // close(i);
+                    // FD_CLR(i, &master);
+                    // close(newsockfd);
                 }
+            }
+            if (FD_ISSET(i, &write_fds))
+            {
+                dostuff(i);
             }
         }
         /*
