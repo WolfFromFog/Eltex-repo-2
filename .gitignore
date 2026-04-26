@@ -35,7 +35,6 @@ module3/9/Storage
 module3/10/consumer
 module3/10/producer
 module3/11/producer
-.gitignore
 module3/11/consumer
 module3/12/client
 module3/12/server
@@ -47,3 +46,5 @@ module3/14/server
 module3/14/client
 module3/14/sniffer.c
 module3/14/udp_dump.bin
+module4.1/Lab1.docx
+module4.1/Lab2/Лаб2.docx
