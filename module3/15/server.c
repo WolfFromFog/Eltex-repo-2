@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
     FD_ZERO(&master_write);
 
     FD_SET(sockfd, &master);
+    FD_SET(sockfd, &master_write);
     int FD_MAX = sockfd;
     // Семафор с
     //  Шаг 4 - извлекаем сообщение из очереди (цикл извлечения запросов на подключение)
@@ -102,6 +103,8 @@ int main(int argc, char *argv[])
                     {
                         FD_MAX = newsockfd;
                     }
+                    char init_prompt[] = "Enter operation (add/sum/mult/div):\n";
+                    write(newsockfd, init_prompt, strlen(init_prompt));
                 }
                 else
                 {
