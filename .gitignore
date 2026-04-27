@@ -42,3 +42,5 @@ module3/13/server
 module3/13/client
 module4.1/Lab1.docx
 module4.1/Lab2/Лаб2.docx
+*.tmp
+*.docx
