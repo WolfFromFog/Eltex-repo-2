@@ -48,5 +48,7 @@ module3/14/sniffer.c
 module3/14/udp_dump.bin
 module4.1/Lab1.docx
 module4.1/Lab2/Лаб2.docx
+*.tmp
+*.docx
 module3/15/client
 module3/15/server
