@@ -21,8 +21,6 @@ void process_packet(unsigned char *, int);
 void init_dump(const char *filename);
 void close_dump(void);
 
-void write_to_dump(const unsigned char *data, int len,
-                   const char *src_ip, int src_port,
-                   const char *dst_ip, int dst_port);
+void write_to_dump(const unsigned char *data, int len);
 
 #endif
