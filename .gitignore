@@ -1,6 +1,5 @@
 /module2/*.vs
 *.json
-*.txt
 *.o
 *.so
 module2/2/2.1/phonebook
@@ -52,3 +51,4 @@ module4.1/Lab2/Лаб2.docx
 *.docx
 module3/15/client
 module3/15/server
+module2/6/6.3/Makefile.txt
