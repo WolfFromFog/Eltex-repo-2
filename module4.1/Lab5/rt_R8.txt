@@ -2,4 +2,4 @@ Gateway of last resort is 192.168.6.1 to network 0.0.0.0
 
 C    192.168.5.0/24 is directly connected, FastEthernet1/0
 C    192.168.6.0/24 is directly connected, FastEthernet0/0
-O*IA 0.0.0.0/0 [110/2] via 192.168.6.1, 01:41:24, FastEthernet0/0
+O*IA 0.0.0.0/0 [110/2] via 192.168.6.1, 00:06:52, FastEthernet0/0
