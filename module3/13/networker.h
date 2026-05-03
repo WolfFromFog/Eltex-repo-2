@@ -9,6 +9,10 @@ void error(const char *msg);
 // функция обслуживания
 // подключившихся пользователей
 void dostuff(int sock);
+int receive_file(int sock, const char *filename);
+int send_file(int sock, const char *filename);
+void dostuff_file(int sock);
+
 void printusers();
 // функции
 // сумма
