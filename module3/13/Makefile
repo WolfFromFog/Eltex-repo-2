@@ -3,8 +3,8 @@ SRC_SERVER = server.c
 SRCS = networker.c
 
 
-TARGET_SRV = server
-TARGET_CLI = client
+TARGET_SRV = server/server
+TARGET_CLI = client/client
 
 all: ${TARGET_CLI} ${TARGET_SRV}
 

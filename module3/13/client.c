@@ -14,8 +14,12 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr;
     struct hostent *server;
     char buff[1024];
+    int use_file_mode = 0;
 
-    printf("TCP DEMO CLIENT\n");
+    printf("TCP CLIENT\n");
+    printf("Available modes:\n");
+    printf("  1. Interactive mode (default)\n");
+    printf("  2. File mode - type 'file' when prompted\n\n");
 
     if (argc < 3)
     {
@@ -73,6 +77,12 @@ int main(int argc, char *argv[])
             return 0;
         }
 
+        if (strstr(buff, "FILE_MODE_READY") != NULL)
+        {
+            use_file_mode = 1;
+            break;
+        }
+
         printf("S<=C:");
         if (fgets(buff, sizeof(buff) - 1, stdin) == NULL)
         {
@@ -80,24 +90,100 @@ int main(int argc, char *argv[])
             close(my_sock);
             return -1;
         }
+
+        buff[strcspn(buff, "\n")] = 0;
+
         send(my_sock, buff, strlen(buff), 0);
-    }
-    n = recv(my_sock, buff, sizeof(buff) - 1, 0);
-    if (n <= 0)
-    {
-        printf("Failed to reciev result\n");
-        close(my_sock);
-        return -1;
+
+        if (strcmp(buff, "file") == 0)
+        {
+            // Ждем подтверждение перехода в файловый режим
+            n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+            if (n > 0)
+            {
+                buff[n] = '\0';
+                printf("S=>C:%s", buff);
+                use_file_mode = 1;
+                break;
+            }
+        }
     }
 
-    buff[n] = '\0';
-    printf("S=>C (result): %s", buff);
-
-    n = recv(my_sock, buff, sizeof(buff) - 1, 0);
-    if (n > 0)
+    if (use_file_mode)
     {
+        char filename[1024];
+        printf("Enter file name to send: ");
+
+        if (fgets(filename, sizeof(filename), stdin) == NULL)
+        {
+            printf("Error reading filename\n");
+            close(my_sock);
+            return -1;
+        }
+        filename[strcspn(filename, "\n")] = 0;
+
+        if (access(filename, F_OK) != 0)
+        {
+            printf("Error: File '%s' does not exist\n", filename);
+            close(my_sock);
+            return -1;
+        }
+
+        printf("Sending file: %s\n", filename);
+        if (send_file(my_sock, filename) < 0)
+        {
+            printf("Failed to send file to server\n");
+            close(my_sock);
+            return -1;
+        }
+
+        printf("Waiting for server response...\n");
+        char response_file[] = "server_response.txt";
+        if (receive_file(my_sock, response_file) < 0)
+        {
+            printf("Failed to receive response file\n");
+            close(my_sock);
+            return -1;
+        }
+
+        FILE *result_file = fopen(response_file, "r");
+        if (result_file != NULL)
+        {
+            char line[256];
+            printf("\n=== RESULT ===\n");
+            while (fgets(line, sizeof(line), result_file))
+            {
+                printf("%s", line);
+            }
+            fclose(result_file);
+        }
+
+        n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+        if (n > 0)
+        {
+            buff[n] = '\0';
+            printf("\nS=>C: %s", buff);
+        }
+    }
+    else
+    {
+        n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+        if (n <= 0)
+        {
+            printf("Failed to reciev result\n");
+            close(my_sock);
+            return -1;
+        }
+
         buff[n] = '\0';
-        printf("\nS=>C: %s", buff);
+        printf("S=>C (result): %s", buff);
+
+        n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+        if (n > 0)
+        {
+            buff[n] = '\0';
+            printf("\nS=>C: %s", buff);
+        }
     }
 
     close(my_sock);
