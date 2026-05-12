@@ -546,3 +546,62 @@ void printTreeAsTree(phonebook *node, int level)
     printf("%d\n", node->person.perID);
     printTreeAsTree(node->left, level + 1);
 }
+
+Person copyPerson(const Person *src)
+{
+    Person dest;
+    dest.perID = src->perID;
+
+    dest.name = src->name ? copyString(src->name) : NULL;
+    dest.surname = src->surname ? copyString(src->surname) : NULL;
+    dest.patronym = src->patronym ? copyString(src->patronym) : NULL;
+
+    strncpy(dest.phone, src->phone, PHONE_LEN - 1);
+    dest.phone[PHONE_LEN - 1] = '\0';
+
+    strncpy(dest.job, src->job, JOB_LEN - 1);
+    dest.job[JOB_LEN - 1] = '\0';
+
+    return dest;
+}
+
+phonebook *buildBalancedTree(Person *arr[], int start, int end)
+{
+
+    if (start > end)
+    {
+        return NULL;
+    }
+
+    int mid = (start + end) / 2;
+    phonebook *root = (phonebook *)malloc(sizeof(phonebook));
+
+    if (!root)
+        return NULL;
+
+    root->person = copyPerson(arr[mid]);
+    root->left = buildBalancedTree(arr, start, mid - 1);
+    root->right = buildBalancedTree(arr, mid + 1, end);
+
+    return root;
+}
+
+phonebook *balanceBST(phonebook *root)
+{
+
+    return NULL;
+}
+
+void printLevelOrder(phonebook *root)
+{
+}
+
+void storeInOrder(phonebook *node, Person *arr[], int *index)
+{
+    if (node == NULL)
+        return;
+
+    storeInOrder(node->left, arr, index);
+    arr[(*index)++] = &(node->person);
+    storeInOrder(node->right, arr, index);
+}

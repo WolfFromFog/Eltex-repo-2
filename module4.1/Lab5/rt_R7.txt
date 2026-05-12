@@ -1,0 +1,14 @@
+Gateway of last resort is not set
+
+O IA 192.168.12.0/24 [110/2] via 192.168.11.1, 00:06:32, FastEthernet0/0
+C    192.168.8.0/24 is directly connected, FastEthernet1/0
+C    192.168.9.0/24 is directly connected, FastEthernet2/0
+O    192.168.10.0/24 [110/2] via 192.168.9.1, 00:06:32, FastEthernet2/0
+C    192.168.11.0/24 is directly connected, FastEthernet0/0
+O E2 192.168.4.0/24 [110/30] via 192.168.11.1, 00:06:02, FastEthernet0/0
+O IA 192.168.5.0/24 [110/3] via 192.168.11.1, 00:06:12, FastEthernet0/0
+O IA 192.168.6.0/24 [110/2] via 192.168.11.1, 00:06:13, FastEthernet0/0
+O    192.168.7.0/24 [110/2] via 192.168.9.1, 00:06:33, FastEthernet2/0
+O E2 192.168.1.0/24 [110/30] via 192.168.11.1, 00:06:03, FastEthernet0/0
+O E2 192.168.2.0/24 [110/30] via 192.168.11.1, 00:06:03, FastEthernet0/0
+O E2 192.168.3.0/24 [110/30] via 192.168.11.1, 00:06:03, FastEthernet0/0
